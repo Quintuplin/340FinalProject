@@ -46,7 +46,7 @@ lui cachetime(int numtests){
 	for(int i=0; i<numtests; i++){
 		a = 1;
 		clock_gettime(CLOCK_MONOTONIC, &start);
-		a = 1;
+		a;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
