@@ -7,7 +7,7 @@ THIS_FILE := $(lastword $(MAKEFILE_LIST))
 all: final
 
 final: main.o
-	$(CC) main.o -o hw5
+	$(CC) main.o -o final
 
 final.o:	final.c
 	$(CC) $(CFLAGS) final.c
