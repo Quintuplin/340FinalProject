@@ -4,19 +4,19 @@ CFLAGS=-c -Wall -g
 CURRENT_DIR := $(shell basename `pwd`)
 THIS_FILE := $(lastword $(MAKEFILE_LIST))
 
-all: hw5
+all: final
 
-hw5: mem.o main.o
-	$(CC) mem.o main.o -o hw5
+final: main.o
+	$(CC) main.o -o hw5
 
-hw5.o:	hw5.c mem.h mem.c
-	$(CC) $(CFLAGS) hw5.c
+final.o:	final.c
+	$(CC) $(CFLAGS) final.c
 
 clean:
-	/bin/rm -f hw5 *.o *~
+	/bin/rm -f final *.o *~
 
 run:
-	./hw5
+	./final
 
 tarball:
 	@$(MAKE) -f $(THIS_FILE) clean
