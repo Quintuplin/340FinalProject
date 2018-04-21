@@ -7,7 +7,7 @@
 
 #define lui long unsigned int
 
-//compare ints for qsort (stackoverflow)
+//compare vals for qsort (stackoverflow)
 int compare_long( const void* a, const void* b )
 {
     if( *(lui*)a == *(lui*)b ) return 0;
@@ -32,15 +32,35 @@ lui mean(lui times[], int numtests){
 	return (lui)(a/numtests);
 }
 
+//base time
+lui basetime(int numtests){
+	struct timespec start, end;
+	lui* times = malloc(numtests * sizeof(lui)); 
+	lui diff;
+	
+	for(int i=0; i<numtests; i++){
+
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		
+		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
+					
+		if (diff >= 1000000)printf("%lu ", diff); //detect for massive error condition
+
+		times[i] = diff;
+		//printf("c%lu ", diff);
+	}
+	
+	lui temp = mean(times, numtests);
+	free(times);
+	return temp;
+}
+
 //cache time
 lui cachetime(int numtests){
 	struct timespec start, end;
-	
 	lui* times = malloc(numtests * sizeof(lui)); 
-	//lui times[numtests]; 
-	
 	lui diff;
-	
 	int a = 1;
 	
 	for(int i=0; i<numtests; i++){
@@ -67,14 +87,11 @@ lui noncachetime(int numtests){
 	struct timespec start, end;
 	
 	lui* times = malloc(numtests * sizeof(lui)); 
-	//lui times[numtests];
-	
 	lui diff;
-	//noncache int a = 1;
 	
 	for(int i=0; i<numtests; i++){
 		clock_gettime(CLOCK_MONOTONIC, &start);
-		void* a = malloc(sizeof(int));
+		void* a = malloc(sizeof(int)); //should be uncacheable??
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		free(a);
 		
@@ -99,9 +116,11 @@ lui noncachetime(int numtests){
 int main(int argc, char** argv){
 	int numtests = atoi(argv[1]);
 	
-	printf("Cache time = %lu\n", (lui)cachetime(numtests));
+	lui temp = (lui)basetime(numtests);
+	
+	printf("Cache time = %ld\n", (lui)cachetime(numtests) - temp);
 	printf("\n");
-	printf("Non-cache time = %lu\n", (lui)noncachetime(numtests));
+	printf("Non-cache time = %ld\n", (lui)noncachetime(numtests) - temp);
 	
 	return 0;
 }
