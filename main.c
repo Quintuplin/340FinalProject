@@ -14,13 +14,6 @@ int compare_long( const void* a, const void* b )
     return *(lui*)a < *(lui*)b ? -1 : 1;
 }
 
-//stats median
-lui median(lui times[], int numtests){
-	qsort(times, numtests, sizeof(lui), compare_long);
-	
-	return times[numtests/2];
-}
-
 //stats mean
 lui mean(lui times[], int numtests){
 	long lui a = 0;
@@ -30,6 +23,37 @@ lui mean(lui times[], int numtests){
 	}
 	
 	return (lui)(a/numtests);
+}
+
+//stats median
+lui median(lui times[], int numtests){
+	qsort(times, numtests, sizeof(lui), compare_long);
+	
+	return times[numtests/2];
+}
+
+//stats mode
+lui mode(lui times[], int numtests){
+	qsort(times, numtests, sizeof(lui), compare_long);
+	
+	lui temp = times[0];
+	int nums = 0;
+	int curmax = 0;
+	int curmaxloc = 0;
+	
+	for(int i=0; i<numtests; i++){
+		if(times[i]==temp) nums++;
+		else{
+			if(nums>curmax){
+				curmaxloc = (i-1);
+				curmax = nums;
+			}
+			nums = 0;
+			temp = times[i];
+		}
+	}
+	
+	return times[curmaxloc];
 }
 
 //base time
@@ -109,7 +133,38 @@ lui noncachetime(int numtests){
 }
 
 //block size
-
+lui blocksize(int numtests){
+	struct timespec start, end;
+	
+	lui* times = malloc(numtests * sizeof(lui)); 
+	lui diff;
+	
+	for(int i=0; i<numtests; i++){
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		times[i];
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		
+		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
+		if (diff >= 1000000)printf("%lu ", diff); //detect for massive error condition
+		times[i] = diff;
+	}
+	
+	lui temp = mean(times, numtests);
+	lui* len = malloc(numtests * sizeof(lui)); 
+	int j=0;
+	
+	for(int i=0; i<numtests; i++){
+		if(times[i]<temp) len[j]++;
+		else j++;
+	}
+	
+	free(times);
+	
+	lui temp2 = mode(len, j);
+	free(len);
+	
+	return temp2;
+}
 //cache size
 
 //main
@@ -118,9 +173,11 @@ int main(int argc, char** argv){
 	
 	lui temp = (lui)basetime(numtests);
 	
-	printf("Cache time = %ld\n", (lui)cachetime(numtests) - temp);
+	printf("Cache time = %ld\n", cachetime(numtests) - temp);
 	printf("\n");
-	printf("Non-cache time = %ld\n", (lui)noncachetime(numtests) - temp);
+	printf("Non-cache time = %ld\n", noncachetime(numtests) - temp);
+	printf("\n");
+	printf("Block size = %ld\n", blocksize(numtests));
 	
 	return 0;
 }
