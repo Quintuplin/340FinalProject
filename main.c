@@ -126,15 +126,16 @@ float cachetime(int numtests){
 
 //better cache time
 float bettercache(int numtests){
-	float *data = malloc(numtests * sizeof(int));
+	float *data = malloc(numtests * sizeof(float));
 	for (int trial = 0; trial < numtests; trial++) {
 		struct timespec start, end;
 		int a = 1, i = 0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
-		for (; i < numtests; i++) a;
+		for (; i < numtests; i++) 
+			a;
 		clock_gettime(CLOCK_MONOTONIC, &end);
-		int diff = DIFF(start, end);
-		data[trial] = diff / numtests;
+		float diff = DIFF(start, end);
+		data[trial] = (float)diff / numtests;
 		//printf("%2d ", diff / numtests); // remove eventually
 	}
 	
@@ -145,6 +146,27 @@ float bettercache(int numtests){
 	return temp;
 }
 
+//better non cache time
+float betternoncache(int numtests){
+	float *data = malloc(numtests * sizeof(float));
+	for (int trial = 0; trial < numtests; trial++) {
+		struct timespec start, end;
+		int i = 0;
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		for (; i < numtests; i++)
+			data[(i+numtests/2)%numtests];
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		float diff = DIFF(start, end);
+		data[trial] = (float)diff / numtests;
+		//printf("%2d ", diff / numtests); // remove eventually
+	}
+	
+	printf("Better noncache median = %f\n", median(data, numtests));
+	printf("Better noncache mode = %f\n", mode(data, numtests));
+	float temp = mean(data, numtests);
+	free(data);
+	return temp;
+}
 //non cache time
 float noncachetime(int numtests){
 	struct timespec start, end;
@@ -215,6 +237,8 @@ int main(int argc, char** argv){
 	//printf("Cache time = %f\n", cachetime(numtests) - temp);
 	printf("\n");
 	printf("Better cache time mean = %f\n", bettercache(numtests));
+	printf("\n");
+	printf("Better noncache time mean = %f\n", betternoncache(numtests));
 	printf("\n");
 	printf("Non-cache time = %f\n", noncachetime(numtests) - temp);
 	printf("\n");
