@@ -5,25 +5,25 @@
 #include <stdlib.h>   /* for string to integer conversion, random numbers */
 #include <time.h> /* for clock stuff */
 
-#define lui long unsigned int
+#define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
 
 //compare vals for qsort (stackoverflow)
-int compare_long( const void* a, const void* b )
+int compare_float( const void* a, const void* b )
 {
-    if( *(lui*)a == *(lui*)b ) return 0;
-    return *(lui*)a < *(lui*)b ? -1 : 1;
+    if( *(int*)a == *(int*)b ) return 0;
+    return *(int*)a < *(int*)b ? -1 : 1;
 }
 /*
 //stats normalize
-void normalise(lui **times, int numtests){
-	qsort(*times, numtests, sizeof(lui), compare_long);
-	lui max = (lui)times[0];
-	lui min = (lui)times[numtests-1];
+void normalise(float **times, int numtests){
+	qsort(*times, numtests, sizeof(float), compare_float);
+	float max = (float)times[0];
+	float min = (float)times[numtests-1];
 	
-	lui nmax = 1000; lui nmin = 0;
+	float nmax = 1000; float nmin = 0;
 	
 	for(int i=0; i<numtests; i++){
-		lui temp = nmin + (*(times+i) - min)(nmax-nmin)/(max-min);
+		float temp = nmin + (*(times+i) - min)(nmax-nmin)/(max-min);
 		*times[i] = temp;
 	}
 	
@@ -31,28 +31,29 @@ void normalise(lui **times, int numtests){
 }*/
 
 //stats mean
-lui mean(lui times[], int numtests){
-	long lui a = 0;
+float mean(float times[], int numtests){
+	float a = 0;
 	
 	for(int i=0; i<numtests; i++){
 		a += times[i];
+		//printf("%f ", a);
 	}
 	
-	return (lui)(a/numtests);
+	return (float)(a/numtests);
 }
 
 //stats median
-lui median(lui times[], int numtests){
-	qsort(times, numtests, sizeof(lui), compare_long);
+float median(float times[], int numtests){
+	qsort(times, numtests, sizeof(float), compare_float);
 	
 	return times[numtests/2];
 }
 
 //stats mode
-lui mode(lui times[], int numtests){
-	qsort(times, numtests, sizeof(lui), compare_long);
+float mode(float times[], int numtests){
+	qsort(times, numtests, sizeof(float), compare_float);
 	
-	lui temp = times[0];
+	float temp = times[0];
 	int nums = 0;
 	int curmax = 0;
 	int curmaxloc = 0;
@@ -73,10 +74,10 @@ lui mode(lui times[], int numtests){
 }
 
 //base time
-lui basetime(int numtests){
+float basetime(int numtests){
 	struct timespec start, end;
-	lui* times = malloc(numtests * sizeof(lui)); 
-	lui diff;
+	float* times = malloc(numtests * sizeof(float)); 
+	float diff;
 	
 	for(int i=0; i<numtests; i++){
 
@@ -85,22 +86,22 @@ lui basetime(int numtests){
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
 					
-		if (diff >= 1000000)printf("%lu ", diff); //detect for massive error condition
+		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
 
 		times[i] = diff;
-		//printf("c%lu ", diff);
+		//printf("c%f ", diff);
 	}
 	
-	lui temp = mean(times, numtests);
+	float temp = mean(times, numtests);
 	free(times);
 	return temp;
 }
 
 //cache time
-lui cachetime(int numtests){
+float cachetime(int numtests){
 	struct timespec start, end;
-	lui* times = malloc(numtests * sizeof(lui)); 
-	lui diff;
+	float* times = malloc(numtests * sizeof(float)); 
+	float diff;
 	int a = 1;
 	
 	for(int i=0; i<numtests; i++){
@@ -111,49 +112,68 @@ lui cachetime(int numtests){
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
 					
-		if (diff >= 1000000)printf("%lu ", diff); //detect for massive error condition
+		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
 
 		times[i] = diff;
-		//printf("c%lu ", diff);
+		//printf("c%f ", diff);
 	}
 	
-	lui temp = mean(times, numtests);
+	float temp = mean(times, numtests);
 	free(times);
 	return temp;
 }
 
+//better cache time
+float bettercache(int numtests){
+	float *data = malloc(numtests * sizeof(int));
+	for (int trial = 0; trial < numtests; trial++) {
+		struct timespec start, end;
+		int a = 1, i = 0;
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		for (; i < numtests; i++) a;
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		int diff = DIFF(start, end);
+		data[trial] = diff / numtests;
+		//printf("%2d ", diff / numtests); // remove eventually
+	}
+	
+	float temp = mean(data, numtests);
+	free(data);
+	return temp;
+}
+
 //non cache time
-lui noncachetime(int numtests){
+float noncachetime(int numtests){
 	struct timespec start, end;
 	
-	lui* times = malloc(numtests * sizeof(lui)); 
-	lui diff;
+	float* times = malloc(numtests * sizeof(float)); 
+	float diff;
 	
 	for(int i=0; i<numtests; i++){
 		clock_gettime(CLOCK_MONOTONIC, &start);
-		void* a = malloc(sizeof(int)); //should be uncacheable??
+		void* a = malloc(sizeof(int)); //shouf be uncacheable??
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		free(a);
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
 
-		if (diff >= 1000000)printf("%lu ", diff); //detect for massive error condition
+		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
 		
 		times[i] = diff;
-		//printf("v%lu ", diff);
+		//printf("v%f ", diff);
 	}
 	
-	lui temp = mean(times, numtests);
+	float temp = mean(times, numtests);
 	free(times);
 	return temp;
 }
 
 //block size
-lui blocksize(int numtests){
+float blocksize(int numtests){
 	struct timespec start, end;
 	
-	lui* times = malloc(numtests * sizeof(lui)); 
-	lui diff;
+	float* times = malloc(numtests * sizeof(float)); 
+	float diff;
 	
 	for(int i=0; i<numtests; i++){
 		clock_gettime(CLOCK_MONOTONIC, &start);
@@ -161,12 +181,12 @@ lui blocksize(int numtests){
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
-		if (diff >= 1000000)printf("%lu ", diff); //detect for massive error condition
+		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
 		times[i] = diff;
 	}
 	
-	lui temp = mean(times, numtests);
-	lui* len = malloc(numtests * sizeof(lui)); 
+	float temp = mean(times, numtests);
+	float* len = malloc(numtests * sizeof(float)); 
 	int j=0;
 	
 	for(int i=0; i<numtests; i++){
@@ -176,7 +196,7 @@ lui blocksize(int numtests){
 	
 	free(times);
 	
-	lui temp2 = mode(len, j);
+	float temp2 = mode(len, j);
 	free(len);
 	
 	return temp2;
@@ -187,13 +207,15 @@ lui blocksize(int numtests){
 int main(int argc, char** argv){
 	int numtests = atoi(argv[1]);
 	
-	lui temp = (lui)basetime(numtests);
+	float temp = (float)basetime(numtests);
 	
-	printf("Cache time = %ld\n", cachetime(numtests) - temp);
+	printf("Cache time = %f\n", cachetime(numtests) - temp);
 	printf("\n");
-	printf("Non-cache time = %ld\n", noncachetime(numtests) - temp);
+	printf("Better cache time = %f\n", bettercache(numtests));
 	printf("\n");
-	printf("Block size = %ld\n", blocksize(numtests));
+	printf("Non-cache time = %f\n", noncachetime(numtests) - temp);
+	printf("\n");
+	printf("Block size = %f\n", blocksize(numtests));
 	
 	return 0;
 }
