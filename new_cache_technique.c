@@ -18,5 +18,6 @@ int main(int argc, char **argv) {
 		data[trial] = diff / ACCESSES;
 		printf("%2d ", diff / ACCESSES); // remove eventually
 	}
+	free(data);
 	return 0;
 }
