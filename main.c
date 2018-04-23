@@ -103,7 +103,7 @@ void blocksize(float* data, int numtests, int* size, int* blocks){
 	struct timespec start, end;
 	float diff;
 	int a;
-	for(int j=0; j<10000; j++){
+	for(int j=0; j<numtests; j++){
 		for(int i=0; i<numtests; i++){
 			a=0;
 		
@@ -146,11 +146,9 @@ int main(int argc, char** argv){
 
 	printf("\nBlock and cache size: \n");
 	int size=0, blocks=0;
-	blocksize(data, numtests, &size, &blocks);
+	blocksize(data, numtests/10, &size, &blocks);
 	printf("block size =  %d\n", size);
-	printf("cache size = %d\n", size * blocks);
-	
-	//printvals(data, numtests);
+	printf("cache size = %d\n", (size * blocks));
 	
 	free(data);
 	return 0;
