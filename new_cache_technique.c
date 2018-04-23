@@ -1,0 +1,20 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
+#define ACCESSES 10000
+
+int main(int argc, char **argv) {
+	int trials = atoi(argv[1]);
+	for (int trial = 0; trial < trials; trial++) {
+		struct timespec start, end;
+		int a = 1, i = 0;
+		clock_gettime(CLOCK_MONOTONIC, &start);
+		for (; i < ACCESSES; i++) a;
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		long diff = DIFF(start, end);
+		printf("%2ld ", diff / ACCESSES);
+	}
+	return 0;
+}
