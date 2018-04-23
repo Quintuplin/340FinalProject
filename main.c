@@ -4,6 +4,7 @@
 
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
 
+
 //compare vals for qsort (stackoverflow)
 int compare_float( const void* a, const void* b )
 {
@@ -98,7 +99,7 @@ void noncache(float* data, int numtests){
 }
 
 //block size
-int* blocksize(float* data, int numtests){
+void blocksize(float* data, int numtests, int* size, int* blocks){
 	struct timespec start, end;
 	float diff;
 	int a;
@@ -118,18 +119,13 @@ int* blocksize(float* data, int numtests){
 	}
 	
 	float temp = mean(data, numtests);
-	
-	int vals=0;
-	int blocks=0;
-	
+
 	for(int i=0; i<numtests; i++){
 		if(data[i]>temp) blocks++;
-		if(data[i]<temp) vals++;
+		if(data[i]<temp) size++;
 	}
-	
-	int b[2] = {vals, blocks};
 
-	return(b);
+	return;
 }
 
 //cache size
@@ -148,9 +144,10 @@ int main(int argc, char** argv){
 	noncache(data, numtests);
 	printvals(data, numtests);
 
-	int* a = blocksize(data, numtests);
-	printf("\nSize of blocks is: %d", a[0]);
-	printf("\nNumber of blocks is: %d", a[1]);
+	int size=0, blocks=0;
+	blocksize(data, numtests, &size, &blocks);
+	printf("\nSize of blocks is: %d\n", size/numtests);
+	printf("Number of blocks is: %d"\n, blocks/numtests);
 	
 	//printvals(data, numtests);
 	
