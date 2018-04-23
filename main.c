@@ -110,7 +110,7 @@ void blocksize(float* data, int numtests){
 		a+=data[i];
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
-		diff = DIFF(start, end)/numtests;
+		diff = DIFF(start, end);
 		data[i] = diff;
 	}
 	
