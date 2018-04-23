@@ -7,6 +7,7 @@
 
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
 
+
 //compare vals for qsort (stackoverflow)
 int compare_float( const void* a, const void* b )
 {
@@ -129,10 +130,10 @@ float bettercache(int numtests){
 	float *data = malloc(numtests * sizeof(float));
 	for (int trial = 0; trial < numtests; trial++) {
 		struct timespec start, end;
-		int a = 1, i = 0;
+		int i = 0; int a=0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++) 
-			a;
+			a++;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
@@ -151,10 +152,10 @@ float betternoncache(int numtests){
 	float *data = malloc(numtests * sizeof(float));
 	for (int trial = 0; trial < numtests; trial++) {
 		struct timespec start, end;
-		int i = 0;
+		int i = 0; int a=0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++)
-			data[(i+numtests/2)%numtests];
+			a+=data[(i*888)%numtests]; //add 888 so that it's not clean blocks of potentially predictable 1000s
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
@@ -167,7 +168,8 @@ float betternoncache(int numtests){
 	free(data);
 	return temp;
 }
-//non cache time
+
+/*//non cache time
 float noncachetime(int numtests){
 	struct timespec start, end;
 	
@@ -192,7 +194,7 @@ float noncachetime(int numtests){
 	free(times);
 	return temp;
 }
-
+*/
 //block size
 float blocksize(int numtests){
 	struct timespec start, end;
@@ -201,8 +203,9 @@ float blocksize(int numtests){
 	float diff;
 	
 	for(int i=0; i<numtests; i++){
+		int a=0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
-		times[i];
+		a+=times[i];
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
@@ -232,16 +235,15 @@ float blocksize(int numtests){
 int main(int argc, char** argv){
 	int numtests = atoi(argv[1]);
 	
-	float temp = (float)basetime(numtests);
-	
+	//float temp = (float)basetime(numtests);
 	//printf("Cache time = %f\n", cachetime(numtests) - temp);
-	printf("\n");
+	//printf("\n");
 	printf("Better cache time mean = %f\n", bettercache(numtests));
 	printf("\n");
 	printf("Better noncache time mean = %f\n", betternoncache(numtests));
 	printf("\n");
-	printf("Non-cache time = %f\n", noncachetime(numtests) - temp);
-	printf("\n");
+	//printf("Non-cache time = %f\n", noncachetime(numtests) - temp);
+	//printf("\n");
 	printf("Block size = %f\n", blocksize(numtests));
 	
 	return 0;
