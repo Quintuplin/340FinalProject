@@ -13,6 +13,22 @@ int compare_long( const void* a, const void* b )
     if( *(lui*)a == *(lui*)b ) return 0;
     return *(lui*)a < *(lui*)b ? -1 : 1;
 }
+/*
+//stats normalize
+void normalise(lui **times, int numtests){
+	qsort(*times, numtests, sizeof(lui), compare_long);
+	lui max = (lui)times[0];
+	lui min = (lui)times[numtests-1];
+	
+	lui nmax = 1000; lui nmin = 0;
+	
+	for(int i=0; i<numtests; i++){
+		lui temp = nmin + (*(times+i) - min)(nmax-nmin)/(max-min);
+		*times[i] = temp;
+	}
+	
+	return;
+}*/
 
 //stats mean
 lui mean(lui times[], int numtests){
