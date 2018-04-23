@@ -98,35 +98,36 @@ void noncache(float* data, int numtests){
 }
 
 //block size
-void blocksize(float* data, int numtests){
+int* blocksize(float* data, int numtests){
 	struct timespec start, end;
 	float diff;
 	int a;
-	
-	for(int i=0; i<numtests; i++){
-		a=0;
+	for(int j=0; j<numtests; j++{
+		for(int i=0; i<numtests; i++){
+			a=0;
 		
-		clock_gettime(CLOCK_MONOTONIC, &start);
-		a+=data[i];
-		clock_gettime(CLOCK_MONOTONIC, &end);
+			clock_gettime(CLOCK_MONOTONIC, &start);
+			a+=data[i];
+			clock_gettime(CLOCK_MONOTONIC, &end);
 		
-		diff = DIFF(start, end);
-		data[i] = diff;
+			diff = DIFF(start, end);
+			if(j==0){
+				data[i] = diff/numtests;
+			}else data[i] += diff/numtests;
+		}
 	}
 	
 	float temp = mean(data, numtests);
-	float* len = malloc(numtests * sizeof(float)); 
-	int j=0;
+	
+	int vals=0;
+	int blocks=0;
 	
 	for(int i=0; i<numtests; i++){
-		if(data[i]<temp) len[j]++;
-		else j++;
+		if(data[i]>temp) blocks++;
+		if(data[i]<temp) vals++;
 	}
 	
-	data = len;
-	free(len);
-	
-	return;
+	return([vals, blocks];
 }
 
 //cache size
@@ -145,9 +146,11 @@ int main(int argc, char** argv){
 	noncache(data, numtests);
 	printvals(data, numtests);
 
-	printf("\nBlock size: \n");
-	blocksize(data, numtests);
-	printvals(data, numtests);
+	int a[2] = blocksize(data, numtests);
+	printf("\nSize of blocks is: %d", a[0]);
+	printf("\nNumber of blocks is: %d", a[1]);
+	
+	//printvals(data, numtests);
 	
 	free(data);
 	return 0;
