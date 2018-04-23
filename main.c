@@ -97,7 +97,7 @@ float basetime(int numtests){
 	return temp;
 }
 
-//cache time
+/*//cache time
 float cachetime(int numtests){
 	struct timespec start, end;
 	float* times = malloc(numtests * sizeof(float)); 
@@ -122,6 +122,7 @@ float cachetime(int numtests){
 	free(times);
 	return temp;
 }
+*/
 
 //better cache time
 float bettercache(int numtests){
@@ -137,6 +138,8 @@ float bettercache(int numtests){
 		//printf("%2d ", diff / numtests); // remove eventually
 	}
 	
+	printf("Better cache median = %f\n", median(data, numtests));
+	printf("Better cache mode = %f\n", mode(data, numtests));
 	float temp = mean(data, numtests);
 	free(data);
 	return temp;
@@ -209,9 +212,9 @@ int main(int argc, char** argv){
 	
 	float temp = (float)basetime(numtests);
 	
-	printf("Cache time = %f\n", cachetime(numtests) - temp);
+	//printf("Cache time = %f\n", cachetime(numtests) - temp);
 	printf("\n");
-	printf("Better cache time = %f\n", bettercache(numtests));
+	printf("Better cache time mean = %f\n", bettercache(numtests));
 	printf("\n");
 	printf("Non-cache time = %f\n", noncachetime(numtests) - temp);
 	printf("\n");
