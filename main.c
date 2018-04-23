@@ -59,13 +59,17 @@ void printvals(float* data, int numtests){
 
 //cache time
 void cache(float* data, int numtests){
+	struct timespec start, end;
+	int i, a;
+	
 	for (int trial = 0; trial < numtests; trial++) {
-		struct timespec start, end;
-		int i = 0; int a=0;
+		i=0; a=1;
+		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++) 
 			a+=a;
 		clock_gettime(CLOCK_MONOTONIC, &end);
+		
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
 	}
@@ -75,13 +79,17 @@ void cache(float* data, int numtests){
 
 //non cache time
 void noncache(float* data, int numtests){
+	struct timespec start, end;
+	int i,a;
+		
 	for (int trial = 0; trial < numtests; trial++) {
-		struct timespec start, end;
-		int i = 0; int a=0;
+		i=0; a=1;
+		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++)
-			a+=data[(i*888)%numtests]; //add 888 so that it's not clean blocks of potentially predictable 1000s
+			a+=data[(i*888)%numtests]; //add 888 for spacing
 		clock_gettime(CLOCK_MONOTONIC, &end);
+		
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
 	}
@@ -93,14 +101,16 @@ void noncache(float* data, int numtests){
 void blocksize(float* data, int numtests){
 	struct timespec start, end;
 	float diff;
+	int a;
 	
 	for(int i=0; i<numtests; i++){
-		int a=0;
+		a=0;
+		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		a+=data[i];
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
-		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
+		diff = DIFF(start, end)/numtests;
 		data[i] = diff;
 	}
 	
