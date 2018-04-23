@@ -7,14 +7,16 @@
 
 int main(int argc, char **argv) {
 	int trials = atoi(argv[1]);
+	int *data = malloc(trials * sizeof(int));
 	for (int trial = 0; trial < trials; trial++) {
 		struct timespec start, end;
 		int a = 1, i = 0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < ACCESSES; i++) a;
 		clock_gettime(CLOCK_MONOTONIC, &end);
-		long diff = DIFF(start, end);
-		printf("%2ld ", diff / ACCESSES);
+		int diff = DIFF(start, end);
+		data[trial] = diff / ACCESSES;
+		printf("%2d ", diff / ACCESSES); // remove eventually
 	}
 	return 0;
 }
