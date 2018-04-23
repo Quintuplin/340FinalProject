@@ -1,4 +1,13 @@
+# Ignore all
+*
 
+# Unignore all with extensions
+!*.*
+
+# Ignore these specific extensions
 *.ini
 *.o
 *.out
+
+# Unignore Makefile
+!*Makefile
