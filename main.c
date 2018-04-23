@@ -1,6 +1,3 @@
-#pragma GCC push_options
-#pragma GCC optimize ("O0")
-
 #include <stdio.h>    /* for printf */
 #include <stdlib.h>   /* for string to integer conversion, random numbers */
 #include <time.h> /* for clock stuff */
@@ -13,22 +10,6 @@ int compare_float( const void* a, const void* b )
     if( *(int*)a == *(int*)b ) return 0;
     return *(int*)a < *(int*)b ? -1 : 1;
 }
-/*
-//stats normalize
-void normalise(float **data, int numtests){
-	qsort(*data, numtests, sizeof(float), compare_float);
-	float max = (float)data[0];
-	float min = (float)data[numtests-1];
-	
-	float nmax = 1000; float nmin = 0;
-	
-	for(int i=0; i<numtests; i++){
-		float temp = nmin + (*(data+i) - min)(nmax-nmin)/(max-min);
-		*data[i] = temp;
-	}
-	
-	return;
-}*/
 
 //stats mean
 float mean(float* data, int numtests){
@@ -76,84 +57,24 @@ void printvals(float* data, int numtests){
 	printf("mode = %f\n", mode(data, numtests));
 }
 
-/*//base time
-float basetime(int numtests){
-	struct timespec start, end;
-	float* data = malloc(numtests * sizeof(float)); 
-	float diff;
-	
-	for(int i=0; i<numtests; i++){
-
-		clock_gettime(CLOCK_MONOTONIC, &start);
-		clock_gettime(CLOCK_MONOTONIC, &end);
-		
-		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
-					
-		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
-
-		data[i] = diff;
-		//printf("c%f ", diff);
-	}
-	
-	float temp = mean(data, numtests);
-	free(data);
-	return temp;
-}
-*/
-
-/*//cache time
-float cachetime(int numtests){
-	struct timespec start, end;
-	float* data = malloc(numtests * sizeof(float)); 
-	float diff;
-	int a = 1;
-	
-	for(int i=0; i<numtests; i++){
-		a = 1;
-		clock_gettime(CLOCK_MONOTONIC, &start);
-		a;
-		clock_gettime(CLOCK_MONOTONIC, &end);
-		
-		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
-					
-		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
-
-		data[i] = diff;
-		//printf("c%f ", diff);
-	}
-	
-	float temp = mean(data, numtests);
-	free(data);
-	return temp;
-}
-*/
-
-//better cache time
-void bettercache(float* data, int numtests){
-	//float *data = malloc(numtests * sizeof(float));
+//cache time
+void cache(float* data, int numtests){
 	for (int trial = 0; trial < numtests; trial++) {
 		struct timespec start, end;
 		int i = 0; int a=0;
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++) 
-			//a++;
 			a+=a;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
-		//printf("%2d ", diff / numtests); // remove eventually
 	}
 	
-	//printf("Better cache median = %f\n", median(data, numtests));
-	//printf("Better cache mode = %f\n", mode(data, numtests));
-	//float temp = mean(data, numtests);
-	//free(data);
 	return;
 }
 
-//better non cache time
-void betternoncache(float* data, int numtests){
-	//float *data = malloc(numtests * sizeof(float));
+//non cache time
+void noncache(float* data, int numtests){
 	for (int trial = 0; trial < numtests; trial++) {
 		struct timespec start, end;
 		int i = 0; int a=0;
@@ -163,48 +84,14 @@ void betternoncache(float* data, int numtests){
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
-		//printf("%2d ", diff / numtests); // remove eventually
 	}
 	
-	//printf("Better noncache median = %f\n", median(data, numtests));
-	//printf("Better noncache mode = %f\n", mode(data, numtests));
-	//float temp = mean(data, numtests);
-	//free(data);
 	return;
 }
 
-/*//non cache time
-float noncachetime(int numtests){
-	struct timespec start, end;
-	
-	float* data = malloc(numtests * sizeof(float)); 
-	float diff;
-	
-	for(int i=0; i<numtests; i++){
-		clock_gettime(CLOCK_MONOTONIC, &start);
-		void* a = malloc(sizeof(int)); //shouf be uncacheable??
-		clock_gettime(CLOCK_MONOTONIC, &end);
-		free(a);
-		
-		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
-
-		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
-		
-		data[i] = diff;
-		//printf("v%f ", diff);
-	}
-	
-	float temp = mean(data, numtests);
-	free(data);
-	return temp;
-}
-*/
-
 //block size
-float blocksize(int numtests){
+void blocksize(float* data, int numtests){
 	struct timespec start, end;
-	
-	float* data = malloc(numtests * sizeof(float)); 
 	float diff;
 	
 	for(int i=0; i<numtests; i++){
@@ -214,7 +101,6 @@ float blocksize(int numtests){
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		diff = ((1000000000 * (end.tv_sec - start.tv_sec)) + end.tv_nsec) -  start.tv_nsec;
-		if (diff >= 1000000)printf("%f ", diff); //detect for massive error condition
 		data[i] = diff;
 	}
 	
@@ -227,45 +113,32 @@ float blocksize(int numtests){
 		else j++;
 	}
 	
-	free(data);
-	
-	float temp2 = mode(len, j);
+	data = len;
 	free(len);
 	
-	return temp2;
+	return;
 }
+
 //cache size
+//LOOOL
 
 //main
 int main(int argc, char** argv){
 	int numtests = atoi(argv[1]);
-	
 	float* data = malloc(numtests * sizeof(float)); 
 	
 	printf("\nCache time: \n");
-	bettercache(data, numtests);
+	cache(data, numtests);
 	printvals(data, numtests);
 	
 	printf("\nNoncache time: \n");
-	betternoncache(data, numtests);
+	noncache(data, numtests);
 	printvals(data, numtests);
-	
-	/*
-	//float temp = (float)basetime(numtests);
-	//printf("Cache time = %f\n", cachetime(numtests) - temp);
-	//printf("\n");
-	printf("Better cache time mean = %f\n", bettercache(numtests));
-	printf("\n");
-	printf("Better noncache time mean = %f\n", betternoncache(numtests));
-	printf("\n");
-	//printf("Non-cache time = %f\n", noncachetime(numtests) - temp);
-	//printf("\n");
-	*/
-	
-	printf("\nBlock size = %f\n", blocksize(numtests));
+
+	printf("\nBlock size: \n");
+	blocksize(data, numtests);
+	printvals(data, numtests);
 	
 	free(data);
 	return 0;
 }
-
-#pragma GCC pop_options
