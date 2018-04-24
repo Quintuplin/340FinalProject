@@ -156,9 +156,11 @@ void cachesize(float* data, int numtests, int* size, float target){
 		}
 	}
 	
-	int i = numtests-1;
-	while(data[i] < target && i >= 0){
+
+	int i = 1;
+	while((data[numtests-i] < target) && (i >= 0)){
 		(*size)++;
+		printf("%d ", *size);
 		i--;
 	}
 
@@ -176,15 +178,14 @@ int main(int argc, char** argv){
 	
 	printf("\nNoncache time: \n");
 	noncache(data, numtests);
-	float ncv = mean(data, numtests);
+	float ncv = median(data, numtests);
 	printvals(data, numtests);
 
-	printf("\nBlock size: \n");
+	printf("\nBlock & Cache size: \n");
 	int bsize=0, blocks=1;
 	blocksize(data, numtests/10, &bsize, &blocks);
 	printf("block size =  %d\n", bsize / blocks);
-	
-	printf("\nCache size: \n");
+
 	int csize=0;
 	cachesize(data, numtests/10, &csize, ncv);
 	printf("cache size =  %d\n", csize);
