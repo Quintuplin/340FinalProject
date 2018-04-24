@@ -3,7 +3,7 @@
 #include <time.h> /* for clock stuff */
 
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
-#define arrsize 1000
+
 
 //compare vals for qsort (stackoverflow)
 int compare_float( const void* a, const void* b )
@@ -61,14 +61,14 @@ void printvals(float* data, int numtests){
 //cache time
 void cache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a[1];
+	int i, a;
 	
 	for (int trial = 0; trial < numtests; trial++) {
-		i=0;
+		i=0; a=1;
 		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++) 
-			a[0]+= 1;
+			a+=a;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		float diff = DIFF(start, end);
@@ -81,14 +81,14 @@ void cache(float* data, int numtests){
 //non cache time
 void noncache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a[arrsize];
+	int i,a;
 		
 	for (int trial = 0; trial < numtests; trial++) {
-		i=0;
+		i=0; a=1;
 		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++)
-			a[(i*255)%arrsize]+=1;
+			a+=data[(i*888)%numtests]; //add 888 for spacing
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		float diff = DIFF(start, end);
@@ -101,30 +101,30 @@ void noncache(float* data, int numtests){
 //block size
 void blocksize(float* data, int numtests, int* size, int* blocks){
 	struct timespec start, end;
-	float diff=0.;
-	float a[arrsize];
-	
-	for(int i=0; i<arrsize; i++) 
-		a[i]=0;
+	float diff;
+	int a;
 	for(int j=0; j<numtests; j++){
-		for(int i=0; i<arrsize; i++){
+		for(int i=0; i<numtests; i++){
+			a=0;
 		
 			clock_gettime(CLOCK_MONOTONIC, &start);
-			a[i]+=diff;
+			a+=data[i];
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		
 			diff = DIFF(start, end);
+			if(j==0){
+				data[i] = diff;
+			}else data[i] += diff;
 		}
 		//if numtests > sizeof cache, cache does not have to be manually cleared between cycles
 		
 	}
 	
-	float temp = mode(a, arrsize);
-	printf("%f", temp);
-	
-	for(int i=0; i<arrsize; i++){
-		if(a[i]>temp) (*blocks)++;
-		if(a[i]<=temp) (*size)++;
+	float temp = mode(data, numtests);
+
+	for(int i=0; i<numtests; i++){
+		if(data[i]>temp) (*blocks)++;
+		if(data[i]<=temp) (*size)++;
 	}
 
 	return;
@@ -183,11 +183,11 @@ int main(int argc, char** argv){
 
 	printf("\nBlock & Cache size: \n");
 	int bsize=0, blocks=1;
-	blocksize(data, numtests, &bsize, &blocks);
-	printf("block size =  %d, %d, %d, %d\n", bsize, blocks, bsize/blocks, bsize / blocks / numtests);
+	blocksize(data, numtests/10, &bsize, &blocks);
+	printf("block size =  %d\n", bsize / blocks);
 
 	int csize=0;
-	cachesize(data, numtests, &csize, ncv);
+	cachesize(data, numtests/10, &csize, ncv);
 	printf("cache size =  %d\n", csize);
 	
 	printf("\n");
