@@ -61,7 +61,7 @@ void printvals(float* data, int numtests){
 //cache time
 void cache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a[arrsize];
+	int i, a[1];
 	
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0;
@@ -81,7 +81,7 @@ void cache(float* data, int numtests){
 //non cache time
 void noncache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a[1000];
+	int i, a[arrsize];
 		
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0;
@@ -101,30 +101,30 @@ void noncache(float* data, int numtests){
 //block size
 void blocksize(float* data, int numtests, int* size, int* blocks){
 	struct timespec start, end;
-	float diff;
-	int a;
+	float diff=0.;
+	float a[arrsize];
+	
+	for(int i=0; i<arrsize; i++) 
+		a[i]=0;
 	for(int j=0; j<numtests; j++){
-		for(int i=0; i<numtests; i++){
-			a=0;
+		for(int i=0; i<arrsize; i++){
 		
 			clock_gettime(CLOCK_MONOTONIC, &start);
-			a+=data[i];
+			a[i]+=diff;
 			clock_gettime(CLOCK_MONOTONIC, &end);
 		
 			diff = DIFF(start, end);
-			if(j==0){
-				data[i] = diff;
-			}else data[i] += diff;
 		}
 		//if numtests > sizeof cache, cache does not have to be manually cleared between cycles
 		
 	}
 	
-	float temp = mode(data, numtests);
-
-	for(int i=0; i<numtests; i++){
-		if(data[i]>temp) (*blocks)++;
-		if(data[i]<=temp) (*size)++;
+	float temp = mode(a, arrsize);
+	printf("%f", temp);
+	
+	for(int i=0; i<arrsize; i++){
+		if(a[i]>temp) (*blocks)++;
+		if(a[i]<=temp) (*size)++;
 	}
 
 	return;
@@ -183,11 +183,11 @@ int main(int argc, char** argv){
 
 	printf("\nBlock & Cache size: \n");
 	int bsize=0, blocks=1;
-	blocksize(data, numtests/10, &bsize, &blocks);
-	printf("block size =  %d\n", bsize / blocks);
+	blocksize(data, numtests, &bsize, &blocks);
+	printf("block size =  %d, %d, %d, %d\n", bsize, blocks, bsize/blocks, bsize / blocks / numtests);
 
 	int csize=0;
-	cachesize(data, numtests/10, &csize, ncv);
+	cachesize(data, numtests, &csize, ncv);
 	printf("cache size =  %d\n", csize);
 	
 	printf("\n");
