@@ -88,7 +88,6 @@ void noncache(float* data, int numtests){
 		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++)
-			a+=data[(i*888)%numtests]; //add 888 for spacing
 			a[(i*255)%arrsize]+=1;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
