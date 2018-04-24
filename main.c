@@ -87,11 +87,11 @@ void noncache(float* data, int numtests){
 		
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; 
-		float* a = malloc(FUCKHUEG/10000); 
+		float* a = malloc(FUCKHUEG/100); 
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++)
-			a[0]+=a[(i*888)%FUCKHUEG/10000]; //add 888 for spacing
+			a[0]+=a[(i*888)%FUCKHUEG/100]; //add 888 for spacing
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
