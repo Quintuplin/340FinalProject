@@ -63,14 +63,14 @@ void printvals(float* data, int numtests){
 //cache time
 void cache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a[10];
+	int i, a[10]; int dummy = 0;
 	
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; a[0]=1;
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++) 
-			a[0]+=a[0];
+			dummy=a[0];
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
@@ -88,10 +88,11 @@ void noncache(float* data, int numtests){
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; 
 		float* a = malloc(FUCKHUEG/100); 
+		int dummy = 0;
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++)
-			a[0]+=a[(i*888)%FUCKHUEG/100]; //add 888 for spacing
+			dummy=a[(i*888)%FUCKHUEG/100]; //add 888 for spacing
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
@@ -106,22 +107,21 @@ void noncache(float* data, int numtests){
 //block size
 void blocksize(float* data, int numtests){
 	struct timespec start, end;
-	int n[] = {2, 4, 8, 16, 32, 64, 128, 256};
 	
-	int atests[] = {0, 0, 0, 0, 0, 0, 0};
+	int atests[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 	
-	for(int i=0; i<8; i++)
-		atests[i] = numtests/n[i];
+	for(int i=0; i<20; i++)
+		atests[i] = (int)((float)numtests/(8*i));
 
 	for(int j=0; j<numtests; j++){
 		
-		for(int i=0; i<8; i++){
+		for(int i=1; i<20; i++){
 			float* a = malloc(FUCKHUEG/100); 
 			int l=0;
 
 			timespec_get(&start, TIME_UTC);
 			for (; l < atests[i]; l++); 
-				a[l*n[i]]+=1;
+				a[l*8*i]+=1;
 			timespec_get(&end, TIME_UTC);
 			
 			float diff = DIFF(start, end);
@@ -133,12 +133,12 @@ void blocksize(float* data, int numtests){
 		}
 	}
 	
-	for(int i=0; i<8; i++){
-		printf("Dur per add at estimated size %d tests %d = %f\n", n[i], atests[i], (float)data[i]/atests[i]/numtests);
+	for(int i=1; i<20; i++){
+		printf("Dur per add at estimated size %d tests %d = %f\n", 8*i, atests[i], (float)data[i]/atests[i]/numtests);
 	}
 	
-	for(int i=1; i<8; i++){
-		printf("Dur %% change = %f\n", ((float)data[i]/atests[i]/numtests) / (data[i-1]/atests[i-1]/numtests));
+	for(int i=2; i<20; i++){
+		printf("Dur %% change from previous at size %d = %f\n", 8*i, ((float)data[i]/atests[i]/numtests) / (data[i-1]/atests[i-1]/numtests));
 	}
 
 	return;
@@ -186,7 +186,7 @@ void cachesize(){
 	for(int i=0; i>=0; i+= 10000){
 		int a[i];
 		a[i-1]=1;
-		printf("Cache is %lu bytes\n", i*sizeof(int));
+		printf(" %lu ", i*sizeof(int));
 	}
 	return;
 }
@@ -210,8 +210,8 @@ int main(int argc, char** argv){
 
 	int csize=0;
 	//cachesize(data, numtests/10, &csize, ncv);
-	//cachesize();
 	printf("cache size =  %d\n", csize);
+	cachesize();
 	
 	free(data);
 	return 0;
