@@ -66,10 +66,10 @@ void cache(float* data, int numtests){
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; a=1;
 		
-		clock_gettime(CLOCK_MONOTONIC, &start);
+		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++) 
 			a+=a;
-		clock_gettime(CLOCK_MONOTONIC, &end);
+		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
@@ -86,10 +86,10 @@ void noncache(float* data, int numtests){
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; a=1;
 		
-		clock_gettime(CLOCK_MONOTONIC, &start);
+		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++)
 			a+=data[(i*888)%numtests]; //add 888 for spacing
-		clock_gettime(CLOCK_MONOTONIC, &end);
+		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
@@ -105,11 +105,9 @@ void blocksize(float* data, int numtests, int* size, int* blocks){
 	int a;
 	for(int j=0; j<numtests; j++){
 		for(int i=0; i<numtests; i++){
-			a=0;
-		
-			clock_gettime(CLOCK_MONOTONIC, &start);
+			timespec_get(&start, TIME_UTC);
 			a+=data[i];
-			clock_gettime(CLOCK_MONOTONIC, &end);
+			timespec_get(&end, TIME_UTC);
 		
 			diff = DIFF(start, end);
 			if(j==0){
@@ -145,9 +143,9 @@ void cachesize(float* data, int numtests, int* size, float target){
 		for(int i=numtests-1; i>=0; i--){
 			a=0;
 		
-			clock_gettime(CLOCK_MONOTONIC, &start);
+			timespec_get(&start, TIME_UTC);
 			a+=data[i];
-			clock_gettime(CLOCK_MONOTONIC, &end);
+			timespec_get(&end, TIME_UTC);
 		
 			diff = DIFF(start, end);
 			if(j==0){
@@ -190,7 +188,6 @@ int main(int argc, char** argv){
 	cachesize(data, numtests/10, &csize, ncv);
 	printf("cache size =  %d\n", csize);
 	
-	printf("\n");
 	free(data);
 	return 0;
 }
