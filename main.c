@@ -136,6 +136,10 @@ void blocksize(float* data, int numtests){
 	for(int i=0; i<8; i++){
 		printf("Dur per add at estimated size %d tests %d = %f\n", n[i], atests[i], (float)data[i]/atests[i]/numtests);
 	}
+	
+	for(int i=1; i<8; i++){
+		printf("Dur %% change = %f\n", ((float)data[i]/atests[i]/numtests) / (data[i-1]/atests[i-1]/numtests));
+	}
 
 	return;
 }
@@ -177,6 +181,7 @@ void cachesize(float* data, int numtests, int* size, float target){
 	return;
 }
 */
+
 void cachesize(){
 	for(int i=0; i>=0; i+= 10000){
 		int a[i];
@@ -205,7 +210,7 @@ int main(int argc, char** argv){
 
 	int csize=0;
 	//cachesize(data, numtests/10, &csize, ncv);
-	cachesize();
+	//cachesize();
 	printf("cache size =  %d\n", csize);
 	
 	free(data);
