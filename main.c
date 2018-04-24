@@ -116,6 +116,8 @@ void blocksize(float* data, int numtests, int* size, int* blocks){
 				data[i] = diff;
 			}else data[i] += diff;
 		}
+		//if numtests > sizeof cache, cache does not have to be manually cleared between cycles
+		
 	}
 	
 	float temp = mode(data, numtests);
@@ -129,7 +131,39 @@ void blocksize(float* data, int numtests, int* size, int* blocks){
 }
 
 //cache size
-//LOOOL
+void cachesize(float* data, int numtests, int* size, float target){
+	struct timespec start, end;
+	float diff;
+	int a;
+	for(int j=0; j<numtests; j++){
+		//go forward to load all blocks in cache
+		for(int i=0; i<numtests; i++){
+			a=0;
+			a+=data[i];
+		}
+		//go back to find delay
+		for(int i=numtests-1; i>=0; i--){
+			a=0;
+		
+			clock_gettime(CLOCK_MONOTONIC, &start);
+			a+=data[i];
+			clock_gettime(CLOCK_MONOTONIC, &end);
+		
+			diff = DIFF(start, end);
+			if(j==0){
+				data[i] = diff;
+			}else data[i] += diff;
+		}
+	}
+	
+	int i = numtests-1;
+	while(data[i] < target && i >= 0){
+		(*size)++;
+		i--;
+	}
+
+	return;
+}
 
 //main
 int main(int argc, char** argv){
@@ -142,12 +176,18 @@ int main(int argc, char** argv){
 	
 	printf("\nNoncache time: \n");
 	noncache(data, numtests);
+	float ncv = mean(data, numtests);
 	printvals(data, numtests);
 
 	printf("\nBlock size: \n");
-	int size=0, blocks=1;
-	blocksize(data, numtests/10, &size, &blocks);
-	printf("block size =  %d\n", size / blocks);
+	int bsize=0, blocks=1;
+	blocksize(data, numtests/10, &bsize, &blocks);
+	printf("block size =  %d\n", bsize / blocks);
+	
+	printf("\nCache size: \n");
+	int csize=0;
+	cachesize(data, numtests/10, &csize, ncv);
+	printf("cache size =  %d\n", csize);
 	
 	printf("\n");
 	free(data);
