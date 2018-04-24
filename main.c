@@ -113,8 +113,8 @@ void blocksize(float* data, int numtests, int* size, int* blocks){
 		
 			diff = DIFF(start, end);
 			if(j==0){
-				data[i] = (float)diff/numtests;
-			}else data[i] += (float)diff/numtests;
+				data[i] = diff;
+			}else data[i] += diff;
 		}
 	}
 	
@@ -147,8 +147,8 @@ int main(int argc, char** argv){
 	printf("\nBlock and cache size: \n");
 	int size=0, blocks=0;
 	blocksize(data, numtests/10, &size, &blocks);
-	printf("block size =  %d\n", size);
-	printf("cache size = %d\n", (size * blocks));
+	printf("block size =  %d\n", size/(numtests/10));
+	printf("cache size = %d\n", (size * blocks)/(numtests/10));
 	
 	free(data);
 	return 0;
