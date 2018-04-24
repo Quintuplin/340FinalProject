@@ -3,7 +3,7 @@
 #include <time.h> /* for clock stuff */
 
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
-
+#define arrsize 1000
 
 //compare vals for qsort (stackoverflow)
 int compare_float( const void* a, const void* b )
@@ -61,14 +61,14 @@ void printvals(float* data, int numtests){
 //cache time
 void cache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a;
+	int i, a[arrsize];
 	
 	for (int trial = 0; trial < numtests; trial++) {
-		i=0; a=1;
+		i=0;
 		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++) 
-			a+=a;
+			a[0]+= 1;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		float diff = DIFF(start, end);
@@ -81,14 +81,15 @@ void cache(float* data, int numtests){
 //non cache time
 void noncache(float* data, int numtests){
 	struct timespec start, end;
-	int i,a;
+	int i, a[1000];
 		
 	for (int trial = 0; trial < numtests; trial++) {
-		i=0; a=1;
+		i=0;
 		
 		clock_gettime(CLOCK_MONOTONIC, &start);
 		for (; i < numtests; i++)
 			a+=data[(i*888)%numtests]; //add 888 for spacing
+			a[(i*255)%arrsize]+=1;
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		
 		float diff = DIFF(start, end);
