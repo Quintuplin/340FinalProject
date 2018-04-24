@@ -1,9 +1,11 @@
 #include <stdio.h>    /* for printf */
 #include <stdlib.h>   /* for string to integer conversion, random numbers */
 #include <time.h> /* for clock stuff */
+#include <math.h>
 
-#define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
-
+#define FUCKHUEG 1000000000 
+#define DIFF(start, end) FUCKHUEG * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
+   
 
 //compare vals for qsort (stackoverflow)
 int compare_float( const void* a, const void* b )
@@ -53,22 +55,22 @@ float mode(float* data, int numtests){
 //output results
 void printvals(float* data, int numtests){
 	qsort(data, numtests, sizeof(float), compare_float);
-	printf("mean = %f\n", mean(data, numtests));
-	printf("median = %f\n", median(data, numtests));
-	printf("mode = %f\n", mode(data, numtests));
+	printf("mean = %.2f\n", mean(data, numtests));
+	printf("median = %.2f\n", median(data, numtests));
+	printf("mode = %.2f\n", mode(data, numtests));
 }
 
 //cache time
 void cache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a;
+	int i, a[10];
 	
 	for (int trial = 0; trial < numtests; trial++) {
-		i=0; a=1;
+		i=0; a[0]=1;
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++) 
-			a+=a;
+			a[0]+=a[0];
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
@@ -81,54 +83,64 @@ void cache(float* data, int numtests){
 //non cache time
 void noncache(float* data, int numtests){
 	struct timespec start, end;
-	int i,a;
+	int i;
 		
 	for (int trial = 0; trial < numtests; trial++) {
-		i=0; a=1;
+		i=0; 
+		float* a = malloc(FUCKHUEG/10000); 
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++)
-			a+=data[(i*888)%numtests]; //add 888 for spacing
+			a[0]+=a[(i*888)%FUCKHUEG/10000]; //add 888 for spacing
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
 		data[trial] = (float)diff / numtests;
+		
+		free(a);
 	}
 	
 	return;
 }
 
 //block size
-void blocksize(float* data, int numtests, int* size, int* blocks){
+void blocksize(float* data, int numtests){
 	struct timespec start, end;
-	float diff;
-	int a;
+	int n[] = {2, 4, 8, 16, 32, 64, 128, 256};
+	
+	int atests[] = {0, 0, 0, 0, 0, 0, 0};
+	
+	for(int i=0; i<8; i++)
+		atests[i] = numtests/n[i];
+
 	for(int j=0; j<numtests; j++){
-		for(int i=0; i<numtests; i++){
-			timespec_get(&start, TIME_UTC);
-			a+=data[i];
-			timespec_get(&end, TIME_UTC);
 		
-			diff = DIFF(start, end);
+		for(int i=0; i<8; i++){
+			float* a = malloc(FUCKHUEG/100); 
+			int l=0;
+
+			timespec_get(&start, TIME_UTC);
+			for (; l < atests[i]; l++); 
+				a[l*n[i]]+=1;
+			timespec_get(&end, TIME_UTC);
+			
+			float diff = DIFF(start, end);
 			if(j==0){
 				data[i] = diff;
 			}else data[i] += diff;
+			
+			free(a);
 		}
-		//if numtests > sizeof cache, cache does not have to be manually cleared between cycles
-		
 	}
 	
-	float temp = mode(data, numtests);
-
-	for(int i=0; i<numtests; i++){
-		if(data[i]>temp) (*blocks)++;
-		if(data[i]<=temp) (*size)++;
+	for(int i=0; i<8; i++){
+		printf("Dur per add at estimated size %d tests %d = %f\n", n[i], atests[i], (float)data[i]/atests[i]/numtests);
 	}
 
 	return;
 }
 
-//cache size
+/*//cache size
 void cachesize(float* data, int numtests, int* size, float target){
 	struct timespec start, end;
 	float diff;
@@ -144,7 +156,7 @@ void cachesize(float* data, int numtests, int* size, float target){
 			a=0;
 		
 			timespec_get(&start, TIME_UTC);
-			a+=data[i];
+			a+=data[1];
 			timespec_get(&end, TIME_UTC);
 		
 			diff = DIFF(start, end);
@@ -164,6 +176,15 @@ void cachesize(float* data, int numtests, int* size, float target){
 
 	return;
 }
+*/
+void cachesize(){
+	for(int i=0; i>=0; i+= 10000){
+		int a[i];
+		a[i-1]=1;
+		printf("Cache is %lu bytes\n", i*sizeof(int));
+	}
+	return;
+}
 
 //main
 int main(int argc, char** argv){
@@ -176,16 +197,15 @@ int main(int argc, char** argv){
 	
 	printf("\nNoncache time: \n");
 	noncache(data, numtests);
-	float ncv = median(data, numtests);
+	//float ncv = median(data, numtests);
 	printvals(data, numtests);
 
 	printf("\nBlock & Cache size: \n");
-	int bsize=0, blocks=1;
-	blocksize(data, numtests/10, &bsize, &blocks);
-	printf("block size =  %d\n", bsize / blocks);
+	blocksize(data, numtests);
 
 	int csize=0;
-	cachesize(data, numtests/10, &csize, ncv);
+	//cachesize(data, numtests/10, &csize, ncv);
+	cachesize();
 	printf("cache size =  %d\n", csize);
 	
 	free(data);
