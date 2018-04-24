@@ -118,11 +118,11 @@ void blocksize(float* data, int numtests, int* size, int* blocks){
 		}
 	}
 	
-	float temp = mean(data, numtests);
+	float temp = mode(data, numtests);
 
 	for(int i=0; i<numtests; i++){
 		if(data[i]>temp) (*blocks)++;
-		if(data[i]<temp) (*size)++;
+		if(data[i]<=temp) (*size)++;
 	}
 
 	return;
@@ -144,12 +144,12 @@ int main(int argc, char** argv){
 	noncache(data, numtests);
 	printvals(data, numtests);
 
-	printf("\nBlock and cache size: \n");
-	int size=0, blocks=0;
+	printf("\nBlock size: \n");
+	int size=0, blocks=1;
 	blocksize(data, numtests/10, &size, &blocks);
-	printf("block size =  %d\n", size/(numtests/10));
-	printf("cache size = %d\n", (size * blocks)/(numtests/10));
+	printf("block size =  %d\n", size / blocks);
 	
+	printf("\n");
 	free(data);
 	return 0;
 }
