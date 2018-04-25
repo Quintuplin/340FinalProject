@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-#define BIGENOUGH 2000000/4
+#define BIGENOUGH 10000000/4
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
    
 
@@ -212,6 +212,8 @@ void cachesize(float *data, int numtests) {
 	printf("Showing a * beside values at least 35%%.\n");
 	float prior = data[resolution - 1];
 	//int muta = 3;
+	
+	float ratios[resolution];
 	for (int i=1; i<=resolution; i++){
 		//printf("%.2f, ", data[i]);
 		//printf("\n");
@@ -220,9 +222,10 @@ void cachesize(float *data, int numtests) {
 
 		float value = ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000;
 		float ratio = data[resolution-i] / prior;
-		if (ratio >= 1.1) {
+		if (ratio >= 1.1){
 			printf(" %s %4.0f KB |%5.1f%% | value = %-6.0f| prior = %-6.0f\n", ratio>=1.35 ? "*" : " ", value, (ratio-1)*100, data[resolution-i], prior);
 		}	
+		ratios[i-1] = (ratio-1)*100;
 		prior = data[resolution-i];
 
 		// if(data[resolution - i] < target){
@@ -235,6 +238,18 @@ void cachesize(float *data, int numtests) {
 	printf("\n");
 		//printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
 	//}
+	
+	int max=0;
+	for (int i=1; i<=resolution; i++){
+		//printf("ratios: %f\n", ratios[i]);
+		//if ((ratios[i] <= 2.) && (ratios[i] >= (-2.)) && (ratios[i+1] >=10)) {
+		//	printf(" %4.0f KB |%5.1f%% | value = %-6.0f| next = %5.1f%%\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000, ratios[i], data[resolution-i], ratios[i+1]);
+		//}	
+		if(ratios[i] > ratios[max])
+			max = i;
+	}
+	
+	printf("cache size = %.1f", ((float)(BIGENOUGH) - ((resolution-max)*(BIGENOUGH/resolution)))*sizeof(int)/1000);
 	return;
 }
 
@@ -242,7 +257,7 @@ void cachesize(float *data, int numtests) {
 int main(){//(int argc, char** argv){
 	int numtests = 20000; //atoi(argv[1]);
 	float* data = calloc(BIGENOUGH, sizeof(float)); 
-	/*
+	
 	printf("\nCache time: \n");
 	cache(data, numtests);
 	printvals(data, numtests);
@@ -253,9 +268,9 @@ int main(){//(int argc, char** argv){
 	printvals(data, numtests/2);
 	printf("\nBlock size: \n");
 	blocksize(data, numtests/50, ncv);
-	*/
+	
 	printf("\nCache size: \n");
-	cachesize(data, numtests/1000);
+	cachesize(data, numtests/100);
 	
 	printf("\n");
 	free(data);
