@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-#define BIGENOUGH 10000000/4
+#define BIGENOUGH 2000000/4
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
    
 
@@ -162,7 +162,7 @@ void blocksize(float* data, int numtests, int ncv){
 
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
-	int resolution = 200;
+	int resolution = 100;
 	printf("[          ]"); fflush(stdout);
 	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/resolution) {
 		for (int trial = 0; trial < numtests; trial++) {
@@ -207,20 +207,24 @@ void cachesize(float *data, int numtests) {
 	printf("target = %.2f\n ", target);
 	
 	//printvals(copy, resolution);
-	for(int muta=5; muta >=0; muta--){
+	//for(int muta=5; muta >=0; muta--){
+		int muta = 3;
 		for (int i=1; i<=resolution; i++){
 			//printf("%.2f, ", data[i]);
 			//printf("\n");
 			//if(data[resolution-i] < (1+(muta/10)) * target){
 				//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
-			printf("cache size in Mbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000000, data[i]);
-				//return;
+			
+		if(data[i] > target){
+			printf("cache size in Kbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000, data[resolution-i]);
+		}
+			//return;
 				//break;
 			//}
 		}
 		printf("\n");
 		//printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
-	}
+	//}
 	return;
 }
 
