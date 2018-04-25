@@ -243,8 +243,8 @@ void cachesize(float *data, int numtests) {
 }
 
 //main
-int main(int argc, char** argv){
-	int numtests = atoi(argv[1]);
+int main(){//(int argc, char** argv){
+	int numtests = 10000; //atoi(argv[1]);
 	float* data = calloc(numtests, sizeof(float)); 
 	
 	printf("\nCache time: \n");
@@ -257,10 +257,10 @@ int main(int argc, char** argv){
 	printvals(data, numtests);
 
 	printf("\nBlock size: \n");
-	blocksize(data, 100, ncv);
+	blocksize(data, numtests/40, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, 100);
+	cachesize(data, numtests);
 	
 	free(data);
 	return 0;
