@@ -162,6 +162,7 @@ void blocksize(float* data, int numtests, int ncv){
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
 	int resolution = 100;
+	printf("[          ]"); fflush(stdout);
 	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/resolution) {
 		for (int trial = 0; trial < numtests; trial++) {
 			int *a = calloc(BIGENOUGH, sizeof(int));
@@ -184,6 +185,12 @@ void cachesize(float *data, int numtests) {
 
 			free(a);
 		}
+		if(i==0) printf("\r[");
+		if((i/(BIGENOUGH/resolution))%10 ==0){
+			printf("=");
+			fflush(stdout);
+		}
+		
 		//printf("%.2f @ %d @ %d\n", data[i/(BIGENOUGH/resolution)], i, i/(BIGENOUGH/resolution));
 	}
 	
@@ -191,16 +198,18 @@ void cachesize(float *data, int numtests) {
 		data[i]/=numtests;
 	}*/
 	
-	//printf("\n");
+	printf("]\r\n");
 	float target = median(data, resolution);
 	//printf("max = %.2f\n ", max);
+	
+	printvals(data, resolution);
 	for(int muta=5; muta >=0; muta--){
 		for (int i=1; i<=resolution; i++){
 			//printf("%.2f, ", data[i]);
 			//printf("\n");
-			if(data[resolution-i] >= (1+(muta/10)) * target){
+			if(data[resolution-i] < (1+(muta/10)) * target){
 				//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
-				printf("cache size in Mbytes = %.2f at diffscale %.2f and resolution %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/10, (float)BIGENOUGH/resolution/1000000);
+				printf("cache size in Mbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000000, data[i]);
 				//return;
 				break;
 			}
@@ -228,7 +237,7 @@ int main(){//(int argc, char** argv){
 	blocksize(data, numtests/50, ncv);
 	*/
 	printf("\nCache size: \n");
-	cachesize(data, numtests/500);
+	cachesize(data, numtests/1000);
 	
 	printf("\n");
 	free(data);
