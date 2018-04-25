@@ -198,13 +198,14 @@ void cachesize(float *data, int numtests) {
 		for (int i=1; i<=resolution; i++){
 			//printf("%.2f, ", data[i]);
 			//printf("\n");
-			if(data[resolution-i] >= (1+(muta/5)) * target){
+			if(data[resolution-i] >= (1+(muta/10)) * target){
 				//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
-				printf("cache size in Mbytes = %.2f at confidence level %.2f and resolution %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/5, (float)BIGENOUGH/resolution/1000000);
-				return;
+				printf("cache size in Mbytes = %.2f at diffscale %.2f and resolution %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/10, (float)BIGENOUGH/resolution/1000000);
+				//return;
+				break;
 			}
 		}
-		printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
+		//printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
 	}
 	return;
 }
@@ -213,7 +214,7 @@ void cachesize(float *data, int numtests) {
 int main(){//(int argc, char** argv){
 	int numtests = 20000; //atoi(argv[1]);
 	float* data = calloc(BIGENOUGH, sizeof(float)); 
-	
+	/*
 	printf("\nCache time: \n");
 	cache(data, numtests);
 	printvals(data, numtests);
@@ -225,7 +226,7 @@ int main(){//(int argc, char** argv){
 
 	printf("\nBlock size: \n");
 	blocksize(data, numtests/50, ncv);
-	
+	*/
 	printf("\nCache size: \n");
 	cachesize(data, numtests/500);
 	
