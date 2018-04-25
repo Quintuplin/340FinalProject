@@ -210,30 +210,30 @@ void cachesize(){
 
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
-	for (int i=0; i<BIGENOUGH; i++) {
+	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/100) {
 		for (int trial = 0; trial < numtests; trial++) {
 			int *a = calloc(BIGENOUGH, sizeof(int));
 			int dummy=0;
 
 			//goto end
 			for(int j=0; j<BIGENOUGH; j++){
-				dummy=a[i];
+				dummy=a[j];
 			}
 			
-			//go back to i location 
+			//go back to i*10 location 
 			timespec_get(&start, TIME_UTC);
 				dummy=a[i];
 			timespec_get(&end, TIME_UTC);
 
 			//store time at data[i]
-			if (trial == 0) data[i] = DIFF(start, end);
-			else data[i] += DIFF(start, end);
+			if (trial == 0) data[100*i/BIGENOUGH] = DIFF(start, end);
+			else data[100*i/BIGENOUGH] += DIFF(start, end);
 
 			free(a);
 		}
 	}
 	
-	for (int i=0; i<BIGENOUGH; i++) {
+	for (int i=0; i<100; i++){
 		if(data[i] < median(data, BIGENOUGH)){
 			printf("cache size = %d", BIGENOUGH-i);
 			return;
@@ -245,22 +245,22 @@ void cachesize(float *data, int numtests) {
 //main
 int main(){//(int argc, char** argv){
 	int numtests = 10000; //atoi(argv[1]);
-	float* data = calloc(numtests, sizeof(float)); 
+	float* data = calloc(BIGENOUGH, sizeof(float)); 
 	
 	printf("\nCache time: \n");
 	cache(data, numtests);
 	printvals(data, numtests);
 	
 	printf("\nNoncache time: \n");
-	noncache(data, numtests);
-	float ncv = median(data, numtests);
+	//noncache(data, numtests);
+	//float ncv = median(data, numtests);
 	printvals(data, numtests);
 
 	printf("\nBlock size: \n");
-	blocksize(data, numtests/40, ncv);
+	//blocksize(data, numtests/40, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, numtests);
+	cachesize(data, 1);
 	
 	free(data);
 	return 0;
