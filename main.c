@@ -226,17 +226,29 @@ void cachesize(float *data, int numtests) {
 			timespec_get(&end, TIME_UTC);
 
 			//store time at data[i]
-			if (trial == 0) data[100*i/BIGENOUGH] = DIFF(start, end);
-			else data[100*i/BIGENOUGH] += DIFF(start, end);
+			if (trial == 0) data[i/(BIGENOUGH/100)] = DIFF(start, end);
+			else data[i/(BIGENOUGH/100)] += DIFF(start, end);
+			
+			//printf("%d", (int)100*i/BIGENOUGH);
 
 			free(a);
 		}
+		//printf("%.2f @ %d @ %d\n", data[i/(BIGENOUGH/100)], i, i/(BIGENOUGH/100));
 	}
 	
 	for (int i=0; i<100; i++){
-		printf("%.2f, ", data[i]);
-		if(data[i] < median(data, BIGENOUGH)){
-			printf("\ncache size = %d", BIGENOUGH-i);
+		data[i]/=numtests;
+	}
+	
+	//printf("\n");
+	
+	//printf("mean = %.2f\n ", mean(data, 100));
+	
+	for (int i=0; i<100; i++){
+		//printf("%.2f, ", data[i]);
+		//printf("\n");
+		if(data[i] < mean(data, 100)){
+			printf("cache size in Mbytes = %.2f\n", ((float)(BIGENOUGH-100*i)*sizeof(int))/1000000);
 			return;
 		}
 	}
@@ -253,15 +265,15 @@ int main(){//(int argc, char** argv){
 	printvals(data, numtests);
 	
 	printf("\nNoncache time: \n");
-	//noncache(data, numtests);
-	//float ncv = median(data, numtests);
+	noncache(data, numtests);
+	float ncv = median(data, numtests);
 	printvals(data, numtests);
 
 	printf("\nBlock size: \n");
-	//blocksize(data, numtests/40, ncv);
+	blocksize(data, numtests/40, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, 1);
+	cachesize(data, 20);
 	
 	free(data);
 	return 0;
