@@ -155,7 +155,7 @@ void blocksize(float* data, int numtests, int ncv){
 	*/
 	//printf("Largest avg duration per add found at: size %d, duration %.2f\n", (int)(pow(2,max[0])), results[0]);
 	printf("largest %% change in duration found at: size %d, change %.2f\n", (int)(pow(2,max[1])), results[1]);
-	printf("therefore, most likely block size is: %d\n", (int)(pow(2,max[1]-1)));
+	printf("therefore, most likely block size is (might be factor 2 over): %d\n", (int)(pow(2,max[1]-1)));
 	return;
 }
 
@@ -209,7 +209,7 @@ void cachesize(){
 
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
-	int resolution = 200;
+	int resolution = 100;
 	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/resolution) {
 		for (int trial = 0; trial < numtests; trial++) {
 			int *a = calloc(BIGENOUGH, sizeof(int));
@@ -235,19 +235,25 @@ void cachesize(float *data, int numtests) {
 		//printf("%.2f @ %d @ %d\n", data[i/(BIGENOUGH/resolution)], i, i/(BIGENOUGH/resolution));
 	}
 	
-	for (int i=0; i<resolution; i++){
+	/*for (int i=0; i<resolution; i++){
 		data[i]/=numtests;
-	}
+	}*/
 	
 	//printf("\n");
-	
-	//printf("mean = %.2f\n ", mean(data, resolution));
+	float max;
+	for(int i=0; i<BIGENOUGH; i++){
+		if(data[i] > max){
+			max = data[i];
+		}
+	}
+	//printf("max = %.2f\n ", max);
 	
 	for (int i=0; i<resolution; i++){
 		//printf("%.2f, ", data[i]);
 		//printf("\n");
-		if(data[i] < mean(data, resolution)){
-			printf("cache size in Mbytes = %.2f\n", ((float)(BIGENOUGH-resolution*i)*4)/1000000);
+		if(data[i] >= max){
+			//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
+			printf("cache size in Mbytes = %.2f at resolution %.2f\n", ((float)(BIGENOUGH) - (i*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)BIGENOUGH/resolution/1000000);
 			return;
 		}
 	}
@@ -272,7 +278,7 @@ int main(){//(int argc, char** argv){
 	blocksize(data, numtests/50, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, numtests/5000);
+	cachesize(data, numtests/500);
 	
 	free(data);
 	return 0;
