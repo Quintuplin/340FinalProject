@@ -2,6 +2,7 @@
 #include <stdlib.h>   /* for string to integer conversion, random numbers */
 #include <time.h> /* for clock stuff */
 #include <math.h>
+#include <string.h>
 
 #define BIGENOUGH 10000000/4
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
@@ -161,7 +162,7 @@ void blocksize(float* data, int numtests, int ncv){
 
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
-	int resolution = 100;
+	int resolution = 200;
 	printf("[          ]"); fflush(stdout);
 	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/resolution) {
 		for (int trial = 0; trial < numtests; trial++) {
@@ -186,7 +187,7 @@ void cachesize(float *data, int numtests) {
 			free(a);
 		}
 		if(i==0) printf("\r[");
-		if((i/(BIGENOUGH/resolution))%10 ==0){
+		if((i/(BIGENOUGH/resolution))%(resolution/10) ==0){
 			printf("=");
 			fflush(stdout);
 		}
@@ -197,23 +198,27 @@ void cachesize(float *data, int numtests) {
 	/*for (int i=0; i<resolution; i++){
 		data[i]/=numtests;
 	}*/
+	//float copy[resolution];
+	//memcpy(copy, data, resolution*sizeof(float));
+	
 	
 	printf("]\r\n");
-	float target = median(data, resolution);
-	//printf("max = %.2f\n ", max);
+	float target = mean(data, resolution);
+	printf("target = %.2f\n ", target);
 	
-	printvals(data, resolution);
+	//printvals(copy, resolution);
 	for(int muta=5; muta >=0; muta--){
 		for (int i=1; i<=resolution; i++){
 			//printf("%.2f, ", data[i]);
 			//printf("\n");
-			if(data[resolution-i] < (1+(muta/10)) * target){
+			//if(data[resolution-i] < (1+(muta/10)) * target){
 				//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
-				printf("cache size in Mbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000000, data[i]);
+			printf("cache size in Mbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000000, data[i]);
 				//return;
-				break;
-			}
+				//break;
+			//}
 		}
+		printf("\n");
 		//printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
 	}
 	return;
