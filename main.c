@@ -3,8 +3,8 @@
 #include <time.h> /* for clock stuff */
 #include <math.h>
 
-#define FUCKHUEG 1000000000 
-#define DIFF(start, end) FUCKHUEG * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
+#define BIGENOUGH 10000000/4
+#define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
    
 
 //compare vals for qsort (stackoverflow)
@@ -87,12 +87,12 @@ void noncache(float* data, int numtests){
 		
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; 
-		float* a = malloc(FUCKHUEG/100); 
+		int* a = calloc(BIGENOUGH, sizeof(int)); 
 		int dummy = 0;
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++)
-			dummy=a[(i*888)%FUCKHUEG/100]; //add 888 for spacing
+			dummy=a[(i*888)%BIGENOUGH]; //add 888 for spacing
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
@@ -105,23 +105,23 @@ void noncache(float* data, int numtests){
 }
 
 //block size
-void blocksize(float* data, int numtests){
+void blocksize(float* data, int numtests, int ncv){
 	struct timespec start, end;
+	int sizes = 9;
+	int atests[sizes];
 	
-	int atests[15] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-	
-	for(int i=0; i<20; i++)
-		atests[i] = (int)((float)numtests/(8*i));
+	for(int i=0; i<sizes; i++){
+		atests[i] = (int)((float)BIGENOUGH/pow(2,i));
+	}
 
 	for(int j=0; j<numtests; j++){
-		
-		for(int i=1; i<20; i++){
-			float* a = malloc(FUCKHUEG/100); 
+		for(int i=0; i<sizes; i++){
+			int* a = calloc(BIGENOUGH, sizeof(int)); 
 			int l=0;
 
 			timespec_get(&start, TIME_UTC);
 			for (; l < atests[i]; l++); 
-				a[l*8*i]+=1;
+				a[(int)(l*pow(2,i))]+=1;
 			timespec_get(&end, TIME_UTC);
 			
 			float diff = DIFF(start, end);
@@ -133,14 +133,30 @@ void blocksize(float* data, int numtests){
 		}
 	}
 	
-	for(int i=1; i<20; i++){
-		printf("Dur per add at estimated size %d tests %d = %f\n", 8*i, atests[i], (float)data[i]/atests[i]/numtests);
-	}
+	float results[] = {0., 0.};
+	int max[2];
 	
-	for(int i=2; i<20; i++){
-		printf("Dur %% change from previous at size %d = %f\n", 8*i, ((float)data[i]/atests[i]/numtests) / (data[i-1]/atests[i-1]/numtests));
+	for(int i=0; i<sizes; i++){
+		//printf("Dur per add at estimated size %d tests %d = %f\n", (int)(pow(2,i)), atests[i], data[i]/atests[i]/numtests);
+		if(data[i]/atests[i]/numtests > results[0]){
+			results[0] = data[i]/atests[i]/numtests;
+			max[0] = i;
+		}if(i>=1){
+			if(((float)data[i]/atests[i]/numtests)/(data[i-1]/atests[i-1]/numtests > results[1])){
+				results[1] = ((float)data[i]/atests[i]/numtests)/(data[i-1]/atests[i-1]/numtests);
+				max[1] = i;
+			}
+		}
 	}
-
+	/*
+	for(int i=1; i<sizes; i++){
+		//printf("Dur %% change from previous at size %d = %f\n", (int)(pow(2,i)), ((float)data[i]/atests[i]/numtests)/(data[i-1]/atests[i-1]/numtests));
+		
+	}
+	*/
+	//printf("Largest avg duration per add found at: size %d, duration %.2f\n", (int)(pow(2,max[0])), results[0]);
+	printf("largest %% change in duration found at: size %d, change %.2f\n", (int)(pow(2,max[1])), results[1]);
+	printf("therefore, most likely block size is: %d\n", (int)(pow(2,max[1]-1)));
 	return;
 }
 
@@ -181,7 +197,7 @@ void cachesize(float* data, int numtests, int* size, float target){
 	return;
 }
 */
-
+/*
 void cachesize(){
 	for(int i=0; i>=0; i+= 10000){
 		int a[i];
@@ -190,11 +206,46 @@ void cachesize(){
 	}
 	return;
 }
+*/
+
+void cachesize(float *data, int numtests) {
+	struct timespec start, end;
+	for (int i=0; i<BIGENOUGH; i++) {
+		for (int trial = 0; trial < numtests; trial++) {
+			int *a = calloc(BIGENOUGH, sizeof(int));
+			int dummy=0;
+
+			//goto end
+			for(int j=0; j<BIGENOUGH; j++){
+				dummy=a[i];
+			}
+			
+			//go back to i location 
+			timespec_get(&start, TIME_UTC);
+				dummy=a[i];
+			timespec_get(&end, TIME_UTC);
+
+			//store time at data[i]
+			if (trial == 0) data[i] = DIFF(start, end);
+			else data[i] += DIFF(start, end);
+
+			free(a);
+		}
+	}
+	
+	for (int i=0; i<BIGENOUGH; i++) {
+		if(data[i] < median(data, BIGENOUGH)){
+			printf("cache size = %d", BIGENOUGH-i);
+			return;
+		}
+	}
+	return;
+}
 
 //main
 int main(int argc, char** argv){
 	int numtests = atoi(argv[1]);
-	float* data = malloc(numtests * sizeof(float)); 
+	float* data = calloc(numtests, sizeof(float)); 
 	
 	printf("\nCache time: \n");
 	cache(data, numtests);
@@ -202,16 +253,14 @@ int main(int argc, char** argv){
 	
 	printf("\nNoncache time: \n");
 	noncache(data, numtests);
-	//float ncv = median(data, numtests);
+	float ncv = median(data, numtests);
 	printvals(data, numtests);
 
-	printf("\nBlock & Cache size: \n");
-	blocksize(data, numtests);
-
-	int csize=0;
-	//cachesize(data, numtests/10, &csize, ncv);
-	printf("cache size =  %d\n", csize);
-	cachesize();
+	printf("\nBlock size: \n");
+	blocksize(data, 100, ncv);
+	
+	printf("\nCache size: \n");
+	cachesize(data, 100);
 	
 	free(data);
 	return 0;
