@@ -159,54 +159,6 @@ void blocksize(float* data, int numtests, int ncv){
 	return;
 }
 
-/*//cache size
-void cachesize(float* data, int numtests, int* size, float target){
-	struct timespec start, end;
-	float diff;
-	int a;
-	for(int j=0; j<numtests; j++){
-		//go forward to load all blocks in cache
-		for(int i=0; i<numtests; i++){
-			a=0;
-			a+=data[i];
-		}
-		//go back to find delay
-		for(int i=numtests-1; i>=0; i--){
-			a=0;
-		
-			timespec_get(&start, TIME_UTC);
-			a+=data[1];
-			timespec_get(&end, TIME_UTC);
-		
-			diff = DIFF(start, end);
-			if(j==0){
-				data[i] = diff;
-			}else data[i] += diff;
-		}
-	}
-	
-
-	int i = 1;
-	while((data[numtests-i] < target) && (i >= 0)){
-		(*size)++;
-		printf("%d ", *size);
-		i--;
-	}
-
-	return;
-}
-*/
-/*
-void cachesize(){
-	for(int i=0; i>=0; i+= 10000){
-		int a[i];
-		a[i-1]=1;
-		printf(" %lu ", i*sizeof(int));
-	}
-	return;
-}
-*/
-
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
 	int resolution = 100;
