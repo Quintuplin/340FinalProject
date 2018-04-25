@@ -4,7 +4,7 @@
 #include <math.h>
 #include <string.h>
 
-#define BIGENOUGH 2000000/4
+#define BIGENOUGH 1400000/4
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
    
 
@@ -215,7 +215,7 @@ void cachesize(float *data, int numtests) {
 			//if(data[resolution-i] < (1+(muta/10)) * target){
 				//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
 			
-		if(data[i] > target){
+		if(data[resolution-i] < target){
 			printf("cache size in Kbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000, data[resolution-i]);
 		}
 			//return;
@@ -246,7 +246,7 @@ int main(){//(int argc, char** argv){
 	blocksize(data, numtests/50, ncv);
 	*/
 	printf("\nCache size: \n");
-	cachesize(data, numtests/1000);
+	cachesize(data, numtests/100);
 	
 	printf("\n");
 	free(data);
