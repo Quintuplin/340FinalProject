@@ -204,10 +204,11 @@ void cachesize(float *data, int numtests) {
 	
 	printf("]\r\n");
 	float target = mean(data, resolution);
-	printf("target = %.2f\n ", target);
+	printf("target = %.2f\n", target);
 	
 	//printvals(copy, resolution);
 	//for(int muta=5; muta >=0; muta--){
+<<<<<<< HEAD
 		int muta = 3;
 		for (int i=1; i<=resolution; i++){
 			//printf("%.2f, ", data[i]);
@@ -218,11 +219,33 @@ void cachesize(float *data, int numtests) {
 		if(data[resolution-i] < target){
 			printf("cache size in Kbytes = %.2f at diffscale %.2f and resolution %.2f with value %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000, data[resolution-i]);
 		}
+=======
+	printf("Showing values at least 10%% greater than the prior.\n");
+	printf("Showing a * beside values at least 35%%.\n");
+	float prior = data[resolution - 1];
+	//int muta = 3;
+	for (int i=1; i<=resolution; i++){
+		//printf("%.2f, ", data[i]);
+		//printf("\n");
+		//if(data[resolution-i] < (1+(muta/10)) * target){
+			//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
+
+		float value = ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000;
+		float ratio = data[resolution-i] / prior;
+		if (ratio >= 1.1) {
+			printf(" %s %4.0f KB |%5.1f%% | value = %-6.0f| prior = %-6.0f\n", ratio>=1.35 ? "*" : " ", value, (ratio-1)*100, data[resolution-i], prior);
+		}	
+		prior = data[resolution-i];
+
+		// if(data[resolution - i] < target){
+		// 	printf("cache size in Kbytes = %.0f at diffscale %.2f and resolution %.2f with value %.2f\n", value, (float)muta/10, (float)(BIGENOUGH/resolution)*sizeof(int)/1000, data[resolution-i]);
+		// }
+>>>>>>> 94688b41b26317997da175e1b8a37ea2c0492a50
 			//return;
 				//break;
 			//}
-		}
-		printf("\n");
+	}
+	printf("\n");
 		//printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
 	//}
 	return;
