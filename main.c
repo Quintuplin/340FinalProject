@@ -63,14 +63,14 @@ void printvals(float* data, int numtests){
 //cache time
 void cache(float* data, int numtests){
 	struct timespec start, end;
-	int i, a[10]; int dummy = 0;
+	int i, a[10];
 	
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; a[0]=1;
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++) 
-			dummy=a[0];
+			a[0]++;
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
@@ -88,11 +88,10 @@ void noncache(float* data, int numtests){
 	for (int trial = 0; trial < numtests; trial++) {
 		i=0; 
 		int* a = calloc(BIGENOUGH, sizeof(int)); 
-		int dummy = 0;
 		
 		timespec_get(&start, TIME_UTC);
 		for (; i < numtests; i++)
-			dummy=a[(i*888)%BIGENOUGH]; //add 888 for spacing
+			a[(i*888)%BIGENOUGH]++; //add 888 for spacing
 		timespec_get(&end, TIME_UTC);
 		
 		float diff = DIFF(start, end);
@@ -121,7 +120,7 @@ void blocksize(float* data, int numtests, int ncv){
 
 			timespec_get(&start, TIME_UTC);
 			for (; l < atests[i]; l++); 
-				a[(int)(l*pow(2,i))]+=1;
+				a[(int)(l*pow(2,i))]++;
 			timespec_get(&end, TIME_UTC);
 			
 			float diff = DIFF(start, end);
@@ -210,45 +209,45 @@ void cachesize(){
 
 void cachesize(float *data, int numtests) {
 	struct timespec start, end;
-	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/100) {
+	int resolution = 200;
+	for (int i=0; i<BIGENOUGH; i+=BIGENOUGH/resolution) {
 		for (int trial = 0; trial < numtests; trial++) {
 			int *a = calloc(BIGENOUGH, sizeof(int));
-			int dummy=0;
 
 			//goto end
 			for(int j=0; j<BIGENOUGH; j++){
-				dummy=a[j];
+				a[j]++;
 			}
 			
 			//go back to i*10 location 
 			timespec_get(&start, TIME_UTC);
-				dummy=a[i];
+				a[i]++;
 			timespec_get(&end, TIME_UTC);
 
 			//store time at data[i]
-			if (trial == 0) data[i/(BIGENOUGH/100)] = DIFF(start, end);
-			else data[i/(BIGENOUGH/100)] += DIFF(start, end);
+			if (trial == 0) data[i/(BIGENOUGH/resolution)] = DIFF(start, end);
+			else data[i/(BIGENOUGH/resolution)] += DIFF(start, end);
 			
-			//printf("%d", (int)100*i/BIGENOUGH);
+			//printf("%d", i/(BIGENOUGH/resolution));
 
 			free(a);
 		}
-		//printf("%.2f @ %d @ %d\n", data[i/(BIGENOUGH/100)], i, i/(BIGENOUGH/100));
+		//printf("%.2f @ %d @ %d\n", data[i/(BIGENOUGH/resolution)], i, i/(BIGENOUGH/resolution));
 	}
 	
-	for (int i=0; i<100; i++){
+	for (int i=0; i<resolution; i++){
 		data[i]/=numtests;
 	}
 	
 	//printf("\n");
 	
-	//printf("mean = %.2f\n ", mean(data, 100));
+	//printf("mean = %.2f\n ", mean(data, resolution));
 	
-	for (int i=0; i<100; i++){
+	for (int i=0; i<resolution; i++){
 		//printf("%.2f, ", data[i]);
 		//printf("\n");
-		if(data[i] < mean(data, 100)){
-			printf("cache size in Mbytes = %.2f\n", ((float)(BIGENOUGH-100*i)*sizeof(int))/1000000);
+		if(data[i] < mean(data, resolution)){
+			printf("cache size in Mbytes = %.2f\n", ((float)(BIGENOUGH-resolution*i)*4)/1000000);
 			return;
 		}
 	}
@@ -257,7 +256,7 @@ void cachesize(float *data, int numtests) {
 
 //main
 int main(){//(int argc, char** argv){
-	int numtests = 10000; //atoi(argv[1]);
+	int numtests = 20000; //atoi(argv[1]);
 	float* data = calloc(BIGENOUGH, sizeof(float)); 
 	
 	printf("\nCache time: \n");
@@ -265,15 +264,15 @@ int main(){//(int argc, char** argv){
 	printvals(data, numtests);
 	
 	printf("\nNoncache time: \n");
-	noncache(data, numtests);
-	float ncv = median(data, numtests);
-	printvals(data, numtests);
+	noncache(data, numtests/2);
+	float ncv = median(data, numtests/2);
+	printvals(data, numtests/2);
 
 	printf("\nBlock size: \n");
-	blocksize(data, numtests/40, ncv);
+	blocksize(data, numtests/50, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, 20);
+	cachesize(data, numtests/5000);
 	
 	free(data);
 	return 0;
