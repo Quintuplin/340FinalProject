@@ -234,8 +234,9 @@ void cachesize(float *data, int numtests) {
 	}
 	
 	for (int i=0; i<100; i++){
+		printf("%.2f, ", data[i]);
 		if(data[i] < median(data, BIGENOUGH)){
-			printf("cache size = %d", BIGENOUGH-i);
+			printf("\ncache size = %d", BIGENOUGH-i);
 			return;
 		}
 	}
