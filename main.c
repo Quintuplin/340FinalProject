@@ -240,12 +240,7 @@ void cachesize(float *data, int numtests) {
 	}*/
 	
 	//printf("\n");
-	float max;
-	for(int i=0; i<BIGENOUGH; i++){
-		if(data[i] > max){
-			max = data[i];
-		}
-	}
+	float max = median(data, resolution);
 	//printf("max = %.2f\n ", max);
 	
 	for (int i=0; i<resolution; i++){
@@ -278,7 +273,7 @@ int main(){//(int argc, char** argv){
 	blocksize(data, numtests/50, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, numtests/500);
+	cachesize(data, numtests/1000);
 	
 	free(data);
 	return 0;
