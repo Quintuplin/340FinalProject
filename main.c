@@ -154,8 +154,8 @@ void blocksize(float* data, int numtests, int ncv){
 	}
 	*/
 	//printf("Largest avg duration per add found at: size %d, duration %.2f\n", (int)(pow(2,max[0])), results[0]);
-	printf("largest %% change in duration found at: size %d, change %.2f\n", (int)(pow(2,max[1])), results[1]);
-	printf("therefore, most likely block size is (might be factor 2 over): %d\n", (int)(pow(2,max[1]-1)));
+	//printf("largest %% change in duration found at: size %d, change %.2f\n", (int)(pow(2,max[1])), results[1]);
+	printf("block size (within a factor of 2) = %d\n", (int)(pow(2,max[1]-1)));
 	return;
 }
 
@@ -240,17 +240,19 @@ void cachesize(float *data, int numtests) {
 	}*/
 	
 	//printf("\n");
-	float max = median(data, resolution);
+	float target = median(data, resolution);
 	//printf("max = %.2f\n ", max);
-	
-	for (int i=0; i<resolution; i++){
-		//printf("%.2f, ", data[i]);
-		//printf("\n");
-		if(data[i] >= max){
-			//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
-			printf("cache size in Mbytes = %.2f at resolution %.2f\n", ((float)(BIGENOUGH) - (i*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)BIGENOUGH/resolution/1000000);
-			return;
+	for(int muta=5; muta >=0; muta--){
+		for (int i=1; i<=resolution; i++){
+			//printf("%.2f, ", data[i]);
+			//printf("\n");
+			if(data[resolution-i] >= (1+(muta/5)) * target){
+				//printf("%d, %.2f", BIGENOUGH, (float)i*(BIGENOUGH/resolution));
+				printf("cache size in Mbytes = %.2f at confidence level %.2f and resolution %.2f\n", ((float)(BIGENOUGH) - ((resolution-i)*(BIGENOUGH/resolution)))*sizeof(int)/1000000, (float)muta/5, (float)BIGENOUGH/resolution/1000000);
+				return;
+			}
 		}
+		printf("Cache size not found at confidence %.2f.\nRetrying at reduced level.\n", (float)muta/5);
 	}
 	return;
 }
@@ -273,8 +275,9 @@ int main(){//(int argc, char** argv){
 	blocksize(data, numtests/50, ncv);
 	
 	printf("\nCache size: \n");
-	cachesize(data, numtests/1000);
+	cachesize(data, numtests/500);
 	
+	printf("\n");
 	free(data);
 	return 0;
 }
