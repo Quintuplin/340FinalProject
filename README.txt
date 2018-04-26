@@ -14,7 +14,7 @@ Dr Leclerc
 			This one went through many revisions before reaching the final iteration. In the end, our solution was based on the idea that each
 			block would have to be a power of 2 size. Therefore, only the first 9 or so powers of 2 would have to be tested, as past that reaches
 			some truly ridiculous numbers. This gave us a finite number of tests (9), with which to generate a nice big array in, jump through the
-			nth	items in that array till it's end, and find the average times to do so for each size. Oddly, however, while we expected the times
+			nth	items in that array till its end, and find the average times to do so for each size. Oddly, while we expected the average get times
 			to plateau (in the case of every call being outside of cache), they instead tended to increase, by very close to a factor of 2, in step
 			with the size of the array. However, it was that variance that allowed us to interpret an answer. While the times increased by close to
 			2 for every step length doubling, the variance was calculatable, and consistent. It showed that the 256 bit step had the largest increase
