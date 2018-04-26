@@ -11,6 +11,24 @@ Dr Leclerc
 		did something very very right, or something very very wrong.
 		
 		8) How we tested for it:
+			This one went through many revisions before reaching the final iteration. In the end, our solution was based on the idea that each
+			block would have to be a power of 2 size. Therefore, only the first 9 or so powers of 2 would have to be tested, as past that reaches
+			some truly ridiculous numbers. This gave us a finite number of tests (9), with which to generate a nice big array in, jump through the
+			nth	items in that array till it's end, and find the average times to do so for each size. Oddly, however, while we expected the times
+			to plateau (in the case of every call being outside of cache), they instead tended to increase, by very close to a factor of 2, in step
+			with the size of the array. However, it was that variance that allowed us to interpret an answer. While the times increased by close to
+			2 for every step length doubling, the variance was calculatable, and consistent. It showed that the 256 bit step had the largest increase
+			by a small but meaningful margin. This read to us to mean that 256 was large enough to consistently break the paging, and therefore that
+			the previous power, 128, must be the correct value. Our method outputs the value automatically selected as the size of the array smaller
+			than the one with the largest increase... and we have every confidence that your machine, like all of ours, will find the same result.
+		
+2. 
+	How big is the cache?
+		Finding the three levels of cache posed a significantly harder question. In fact, even with iterations running until the very last few
+		hours of the many times extended deadline, we still do not have a method that reliably finds the correct values (as found in hardware
+		specs). However, correllating inversely to the inaccuracy of our test results is the complexity and quality of our tests; 
+		
+		7) How we tested for it:
 			By far the most complex, complicated, and least well answered or understood... cache size is an elusive thing to test for, and so
 			easily and concretely looked up that the lack of finding results to support our pre-existing knowledge was tantamount to torture.
 			While one version of the calculation would semi-consistenly find a cache size of 0.1 Megabytes, which is not an unbelievable number
@@ -27,24 +45,7 @@ Dr Leclerc
 			test would be just as like as not to miss by as wide a margin as was possible in the allowed range of resulting values. In the end,
 			cache size is still a mystery; a kraken, laughing leagues below in the depths as we try to swim down to grab it, or even catch a 
 			glimpse.
-		
-2. 
-	How big is the cache?
-		Finding the three levels of cache posed a significantly harder question. In fact, even with iterations running until the very last few
-		hours of the many times extended deadline, we still do not have a method that reliably finds the correct values (as found in hardware
-		specs). However, correllating inversely to the inaccuracy of our test results is the complexity and quality of our tests; 
-		
-		7) How we tested for it:
-			This one went through many revisions before reaching the final iteration. In the end, our solution was based on the idea that each
-			block would have to be a power of 2 size. Therefore, only the first 9 or so powers of 2 would have to be tested, as past that reaches
-			some truly ridiculous numbers. This gave us a finite number of tests (9), with which to generate a nice big array in, jump through the
-			nth	items in that array till it's end, and find the average times to do so for each size. Oddly, however, while we expected the times
-			to plateau (in the case of every call being outside of cache), they instead tended to increase, by very close to a factor of 2, in step
-			with the size of the array. However, it was that variance that allowed us to interpret an answer. While the times increased by close to
-			2 for every step length doubling, the variance was calculatable, and consistent. It showed that the 256 bit step had the largest increase
-			by a small but meaningful margin. This read to us to mean that 256 was large enough to consistently break the paging, and therefore that
-			the previous power, 128, must be the correct value. Our method outputs the value automatically selected as the size of the array smaller
-			than the one with the largest increase... and we have every confidence that your machine, like all of ours, will find the same result.
+			
 		
 3.
 	How long does a reference to main memory take to complete?
