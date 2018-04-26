@@ -5,8 +5,8 @@ Dr Leclerc
 
 1. 
 	How big is a cache block?
-		Experimentally, we found that 128 was an extremely reliable value, tested by finding the at which increasing to the next power of 2 
-		(256) had the greatest % increase in time per request. While this value was only a tiny bit larger than it's neighbors, the result was
+		Experimentally, we found that 128 was an extremely reliable value, tested by finding the value at which increasing to the next power of
+		2 had the greatest % increase in time per request. While this value was only a tiny bit larger than it's neighbors, the result was
 		unique among all our tests in that it always reached the same exact value, for all machines, and under all circumstances. So either we
 		did something very very right, or something very very wrong.
 		
