@@ -31,10 +31,10 @@ Dr. Leclerc
 
 		By far the most complex, complicated, and least well answered or understood... cache size is a difficult thing to test, and so
 		easily and concretely looked up that the lack of results to support our pre-existing knowledge was tantamount to torture.
-		While one version of the calculation would semi-consistenly find a cache size of 0.1 Megabytes, which is not an unbelievable number
+		While one version of the calculation would semi-consistently find a cache size of 0.1 Megabytes, which is not an unbelievable number
 		(being within an order of most real answers for most cache layers, on most machines), it would also occasionally return 8M, 10M,
-		or other elusive, questionable results. These variations are largely due to our difficulty in moving the timing
-		mechanism outside of the innermost for loop; meaning that any test, over any number of tests, and any number of permutations, would
+		or other elusive, questionable results. These variations are largely due to our difficulty in moving the timing mechanism outside 
+		of the innermost for loop; meaning that any testing method, over any number of tests, and any number of permutations, would
 		always be carrying significant error forward. In attempts to normalize the results, the method was rewritten multiple times, first 
 		to refine the scope of sizes tested for to allow for more tests; then by reducing the test count to allow for greater precision in
 		the estimated numbers; then by undoing that because the high precision numbers were just more wrong, and it took too long. We even
@@ -54,12 +54,12 @@ Dr. Leclerc
 	How we tested for it:
 
 		A variant on the cache speed solution described below, the noncache solution had two main differences.
-			a) A much larger array was malloced, to ensure that it would not be in cache to begin with. This array was also freed and re-
-				allocated between trials, so that each test would be equally cache-free.
-			b) A custom spacing was figured out for the for loop. This spacing would be sufficiently large as to dodge even the largest of 
-				possible cache and cache-block sizes, while being as small as possible within that parameter to allow for the maximum number
-				of tests before a reallocation would be required
-		Beyond that, it was yet again not much more than a big nested loop set; with the timing element outside of the innermost loop to allow
+		 a) A much larger array was malloced, to ensure that it would not be in cache to begin with. This array was also freed and re-
+			allocated between trials, so that each test would be equally cache-free.
+		 b) A custom spacing was figured out for the for loop. This spacing would be sufficiently large as to dodge even the largest of 
+			possible cache and cache-block sizes, while being as small as possible within that parameter to allow for the maximum number
+			of tests before a reallocation would be required
+		Beyond that, it was not much more than a big nested loop set; with the timing element outside of the innermost loop to allow
 		even that small error to be statistically minimized.
 
 4. How long does a reference that can be satisfied from cache take to complete?
@@ -73,7 +73,7 @@ Dr. Leclerc
 		the value stored at a[0] a large number of times, then stop the timer and divide our result by the number of loops. This method allowed
 		us to minimize the error as much as possible; while the for loop has some overhead, and the ++ command some as well, a comparatively large 
 		source of error is the startup and stopping of the timer itself. By pushing this outside the innermost loop, we allowed that error to be
-		minimized to the absolute minimum.
+		reduced to the absolute minimum.
 		After that is was simply taking the standard stats approaches to our results, to see what we got.
 		
 That's all!
