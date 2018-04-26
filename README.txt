@@ -13,7 +13,7 @@ Dr Leclerc
 		8) How we tested for it:
 			By far the most complex, complicated, and least well answered or understood... cache size is an elusive thing to test for, and so
 			easily and concretely looked up that the lack of finding results to support our pre-existing knowledge was tantamount to torture.
-			While one version of the calculation would semi-consistenly find a cache size of .1Megabytes, which is not an unbelievable number
+			While one version of the calculation would semi-consistenly find a cache size of 0.1 Megabytes, which is not an unbelievable number
 			(being within an order of most real answers for most cache layers, on most machines)... it would also occasionally return 8M, 10M,
 			or other elusive, questionable results. These variances are largely due to the inability of our coding minds to move the timing
 			mechanism outside of the innermost for loop; meaning that any test, over any number of tests, and any number of permutations, would
