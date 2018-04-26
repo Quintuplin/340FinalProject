@@ -80,3 +80,8 @@ Dr Leclerc
 		Mean, Median, and Mode; 
 			Why display one when you can calculate and print them all? Especially when they agree with each other, further supporting the quality of 
 			the test!
+			
+#
+	The Print Statements
+		If you wanna have some fun with it, try uncommenting some of the print statements! Some of them (especially in the cache size method), do some 
+		REALLY cool things!
