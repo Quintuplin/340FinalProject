@@ -6,7 +6,13 @@
 
 #define BIGENOUGH 2000000/4
 #define DIFF(start, end) 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec
-   
+ 
+/*
+//Anthony Morrell and Jack Fraser
+//340 Final Project
+//4/25/2016
+//Dr Leclerc
+*/ 
 
 //compare vals for qsort (stackoverflow)
 int compare_float( const void* a, const void* b )
