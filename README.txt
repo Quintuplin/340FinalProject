@@ -46,8 +46,7 @@ Dr Leclerc
 			test would be just as like as not to miss by as wide a margin as was possible in the allowed range of resulting values. In the end,
 			cache size is still a mystery; a kraken, laughing leagues below in the depths as we try to swim down to grab it, or even catch a 
 			glimpse.
-			
-		
+				
 3.
 	How long does a reference to main memory take to complete?
 		This is a much easier question to answer, although not as much as the last question. Mostly, this one was solved by making a big array,
