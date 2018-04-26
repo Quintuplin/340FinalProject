@@ -49,16 +49,16 @@ Dr Leclerc
 				
 3.
 	How long does a reference to main memory take to complete?
-		This is a much easier question to answer, although not as much as the last question. Mostly, this one was solved by making a big array,
+		This is a much easier question to answer, although not as much as the final question. Mostly, this one was solved by making a big array,
 		then iterating through it in big leaps to always miss the cache. Add a little extra tests, and some reallocations to make sure the cache
 		(of unknown total size and still uncertain block size) has minimal to no hits. All in all, our solution seems decent, and while perhaps
 		not perfect, absolutely hits the ballpark.
 		
 		6) How we tested for it:
-			A variant on the cache solution, the noncache solution had but two main differences.
-				a) a much larger array was malloced, to ensure that it would not be in cache to begin with. This array was also freed and re-
+			A variant on the cache speed solution described below, the noncache solution had but two main differences.
+				a) A much larger array was malloced, to ensure that it would not be in cache to begin with. This array was also freed and re-
 					allocated between trials, so that each test would be equally cache-free.
-				b) a custom spacing was figured out for the for loop. This spacing would be sufficiently large as to dodge even the largest of 
+				b) A custom spacing was figured out for the for loop. This spacing would be sufficiently large as to dodge even the largest of 
 					possible cache and cache-block sizes, while being as small as possible within that parameter to allow for the maximum number
 					of tests before a reallocation would be required
 			Beyond that, t'was yet again not much more than a big nested loop set; with the timing element outside of the innermost loop to allow
@@ -71,9 +71,9 @@ Dr Leclerc
 		5) How we tested for it:
 			First, we allocate an array of size 1. It could have been an int, or a char, but we went with an array. Then we start a timer, access 
 			the value stored at a[0] a large number of times, then stop the timer and divide our result by the number of loops. This method allowed
-			us to minimize the error as much as possible; while the for loop has some overhead, and the ++ command some as well, an extremely large 
+			us to minimize the error as much as possible; while the for loop has some overhead, and the ++ command some as well, a comparatively large 
 			source of error is the startup and stopping of the timer itself. By pushing this outside the innermost loop, we allowed that error to be
-			minimized to a near negligible amount.
+			minimized to the absolute minimum.
 			After that is was simply taking the standard stats approaches to our results, to see what we got.
 			
 #.
@@ -86,3 +86,7 @@ Dr Leclerc
 	The Print Statements
 		If you wanna have some fun with it, try uncommenting some of the print statements! Some of them (especially in the cache size method), do some 
 		REALLY cool things!
+		
+That's all!
+Thank you for a great term!
+Jack & Anthony
