@@ -45,7 +45,7 @@ Dr Leclerc
 			promising results in all of these potential directions (sometimes even hitting the exact known cache size values), any subsequent
 			test would be just as like as not to miss by as wide a margin as was possible in the allowed range of resulting values. In the end,
 			cache size is still a mystery; a kraken, laughing leagues below in the depths as we try to swim down to grab it, or even catch a 
-			glimpse. But our answer is within an order of L2 so that's something.
+			glimpse. But our results tend to be within an order of L2 so that's something.
 				
 3.
 	How long does a reference to main memory take to complete?
