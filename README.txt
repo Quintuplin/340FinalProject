@@ -3,6 +3,10 @@ Jack Fraser & Anthony Morrell
 4.25.2018
 Dr. Leclerc
 
+//new readme changes for anderson assignment
+//hello
+
+
 1. How big is a cache block?
 
 		Experimentally, we found that 128 was an extremely reliable value, tested by finding the value at which increasing to the next power of
